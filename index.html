@@ -113,6 +113,7 @@
         .server-warning { background: #fef3c7; color: #92400e; padding: 12px; border-radius: 20px; margin-bottom: 20px; font-size:0.9rem; }
         .back-button { background:none; border:none; font-size:18px; cursor:pointer; display:flex; align-items:center; gap:6px; color:var(--accent); margin-bottom:12px; }
         .stat-item { background:var(--bg-card); padding:8px; border-radius:12px; margin:4px 0; }
+        .cooldown-info { font-size:0.85rem; color:var(--text-secondary); margin-top:8px; padding:4px; background:var(--bg-body); border-radius:12px; }
     </style>
 </head>
 <body>
@@ -225,6 +226,9 @@
         const [builtinEdits, setBuiltinEdits] = useState({});
         const [userLastSeen, setUserLastSeen] = useState({});
         
+        // Для отображения кулдауна на создание игры
+        const [cooldownRemaining, setCooldownRemaining] = useState(0);
+        
         const builtinProjects = BUILTIN_GAMES.map(game => ({
             id: game.id, title: game.title, isBuiltIn: true, author: 'DeepSeek', authorPremium: true,
             getHtmlFunc: (progress) => game.getHtml(progress),
@@ -235,23 +239,34 @@
         const isAdmin = userData?.email === 'yarikk23012014@gmail.com' || userData?.isAdmin === true;
         const isPremium = userData?.premium === true;
 
-        // Загрузка аватара
-        const uploadAvatar = async () => {
-            if (!avatarFile && !avatarUrl.trim()) return;
-            setUploadingAvatar(true);
-            try {
-                let finalUrl = avatarUrl.trim();
-                if (avatarFile) {
-                    const storageRef = storage.ref(`avatars/${user.uid}`);
-                    await storageRef.put(avatarFile);
-                    finalUrl = await storageRef.getDownloadURL();
-                }
-                await db.collection('users').doc(user.uid).update({ avatar: finalUrl });
-                setUserData(prev => ({ ...prev, avatar: finalUrl }));
-                alert('Аватар обновлён!');
-            } catch (err) { alert('Ошибка: ' + err.message); }
-            finally { setUploadingAvatar(false); setAvatarFile(null); setAvatarUrl(''); }
+        // Функция для проверки возможности создания новой игры (лимит 1 в неделю)
+        const canCreateGame = () => {
+            if (isAdmin) return true;
+            if (!userData?.lastGameCreated) return true;
+            const lastCreated = userData.lastGameCreated.toDate ? userData.lastGameCreated.toDate() : new Date(userData.lastGameCreated);
+            const now = new Date();
+            const diffDays = (now - lastCreated) / (1000 * 60 * 60 * 24);
+            return diffDays >= 7;
         };
+
+        // Получить оставшиеся дни до следующей игры
+        const getCooldownDays = () => {
+            if (isAdmin) return 0;
+            if (!userData?.lastGameCreated) return 0;
+            const lastCreated = userData.lastGameCreated.toDate ? userData.lastGameCreated.toDate() : new Date(userData.lastGameCreated);
+            const now = new Date();
+            const diffDays = (now - lastCreated) / (1000 * 60 * 60 * 24);
+            if (diffDays >= 7) return 0;
+            return Math.ceil(7 - diffDays);
+        };
+
+        // Обновить кулдаун каждую минуту
+        useEffect(() => {
+            const interval = setInterval(() => {
+                setCooldownRemaining(getCooldownDays());
+            }, 60000);
+            return () => clearInterval(interval);
+        }, [userData, isAdmin]);
 
         const loadUserData = useCallback(async (uid) => {
             try {
@@ -262,8 +277,9 @@
                         setUserData(data);
                         setGameProgress(data.gameProgress || {});
                         setGameHistory(data.gameHistory || []);
+                        setCooldownRemaining(getCooldownDays());
                     } else {
-                        const defaultData = { email: auth.currentUser.email, nickname: '', gameProgress: {}, gameHistory: [], banned: false, premium: false, isAdmin: false, avatar: null };
+                        const defaultData = { email: auth.currentUser.email, nickname: '', gameProgress: {}, gameHistory: [], banned: false, premium: false, isAdmin: false, avatar: null, lastGameCreated: null };
                         db.collection('users').doc(uid).set(defaultData);
                         setUserData(defaultData);
                         if (!auth.currentUser.email || !defaultData.nickname) setNicknameModalOpen(true);
@@ -401,7 +417,7 @@
                 setAuthError('');
                 const cred = await auth.createUserWithEmailAndPassword(email, password);
                 await db.collection('users').doc(cred.user.uid).set({
-                    email, nickname, gameProgress: {}, gameHistory: [], banned: false, premium: false, isAdmin: false, avatar: null
+                    email, nickname, gameProgress: {}, gameHistory: [], banned: false, premium: false, isAdmin: false, avatar: null, lastGameCreated: null
                 });
             } catch (err) { setAuthError(err.message); }
         };
@@ -417,7 +433,7 @@
                 const userDoc = await db.collection('users').doc(result.user.uid).get();
                 if (!userDoc.exists) {
                     await db.collection('users').doc(result.user.uid).set({
-                        email: result.user.email, nickname: '', gameProgress: {}, gameHistory: [], banned: false, premium: false, isAdmin: false, avatar: null
+                        email: result.user.email, nickname: '', gameProgress: {}, gameHistory: [], banned: false, premium: false, isAdmin: false, avatar: null, lastGameCreated: null
                     });
                     setNicknameModalOpen(true);
                 } else if (userDoc.data().banned) {
@@ -459,7 +475,13 @@
             if (uid === user.uid) setUserData(prev => ({ ...prev, isAdmin: makeAdmin }));
         };
 
+        // Обновлённая функция создания игры с проверкой лимита
         const addNewGame = async () => {
+            if (!canCreateGame()) {
+                const daysLeft = getCooldownDays();
+                alert(`Вы можете создавать не более одной игры в неделю. Осталось дней: ${daysLeft}. Администраторы могут создавать без ограничений.`);
+                return;
+            }
             const newId = 'user_' + Date.now();
             const newGame = {
                 id: newId, title: 'Моя игра',
@@ -472,6 +494,9 @@
             };
             try {
                 await db.collection('games').doc(newId).set(newGame);
+                // Обновляем время последнего создания игры у пользователя
+                await db.collection('users').doc(user.uid).update({ lastGameCreated: firebase.firestore.FieldValue.serverTimestamp() });
+                setUserData(prev => ({ ...prev, lastGameCreated: new Date() }));
                 editCustomGame({ ...newGame, isBuiltIn: false });
             } catch (error) { alert('Ошибка добавления игры: ' + error.message); }
         };
@@ -629,6 +654,23 @@
             setIsRightDrawerOpen(true);
         };
 
+        const uploadAvatar = async () => {
+            if (!avatarFile && !avatarUrl.trim()) return;
+            setUploadingAvatar(true);
+            try {
+                let finalUrl = avatarUrl.trim();
+                if (avatarFile) {
+                    const storageRef = storage.ref(`avatars/${user.uid}`);
+                    await storageRef.put(avatarFile);
+                    finalUrl = await storageRef.getDownloadURL();
+                }
+                await db.collection('users').doc(user.uid).update({ avatar: finalUrl });
+                setUserData(prev => ({ ...prev, avatar: finalUrl }));
+                alert('Аватар обновлён!');
+            } catch (err) { alert('Ошибка: ' + err.message); }
+            finally { setUploadingAvatar(false); setAvatarFile(null); setAvatarUrl(''); }
+        };
+
         if (loading) {
             return ( <div className="loading-error"><h2>Загрузка...</h2>{loadError && <p style={{color: 'red'}}>{loadError}</p>}{loadError && <button className="retry-btn" onClick={() => window.location.reload()}>Повторить</button>}</div> );
         }
@@ -745,7 +787,7 @@
 
                 {isMenuOpen && (<div className="menu-overlay" onClick={() => setIsMenuOpen(false)}><aside className="sidebar" onClick={e => e.stopPropagation()}><h2>📋 Меню</h2><div className="menu-section"><h3>🎮 Фильтры</h3><div className="menu-game-item" onClick={() => { setShowMyGamesOnly(true); setShowPremiumOnly(false); setIsMenuOpen(false); }}>Только мои игры</div><div className="menu-game-item" onClick={() => { setShowMyGamesOnly(false); setShowPremiumOnly(false); setIsMenuOpen(false); }}>Все игры</div><div className="menu-game-item" onClick={() => { setShowPremiumOnly(true); setShowMyGamesOnly(false); setIsMenuOpen(false); }}>⭐ Премиум игры</div></div><div className="menu-section"><h3>📈 Прогресс</h3>{gamesWithProgress.length === 0 && <p>Нет сохранённого прогресса</p>}{gamesWithProgress.map(game => (<div key={game.id} className="menu-game-item" onClick={() => { setIsMenuOpen(false); openGame(game, game.isBuiltIn, game.getHtmlFunc); }}>🎮 {game.title}</div>))}</div><div className="menu-section"><h3>🕘 История игр</h3>{gameHistory.length === 0 && <p>Вы ещё не играли</p>}{gameHistory.map(item => { const game = allGames.find(g => g.id === item.id); if (!game) return null; return (<div key={item.id} className="menu-game-item" onClick={() => { setIsMenuOpen(false); openGame(game, game.isBuiltIn, game.getHtmlFunc); }}>🕹️ {game.title} <span className="history-date">({new Date(item.firstPlayed).toLocaleString()})</span></div>); })}</div></aside></div>)}
 
-                {isRightDrawerOpen && (<div className="menu-overlay" onClick={() => setIsRightDrawerOpen(false)}><div className="right-drawer" onClick={e => e.stopPropagation()}><div className="drawer-header"><h3>Аккаунт</h3><button className="drawer-close" onClick={() => setIsRightDrawerOpen(false)}>✕</button></div><div className="drawer-tabs"><div className={`drawer-tab ${drawerTab === 'profile' ? 'active' : ''}`} onClick={() => setDrawerTab('profile')}>Профиль</div><div className={`drawer-tab ${drawerTab === 'chat' ? 'active' : ''}`} onClick={() => { setDrawerTab('chat'); loadAllUsers(); }}>Чат</div>{isAdmin && <div className={`drawer-tab ${drawerTab === 'admin' ? 'active' : ''}`} onClick={() => { setDrawerTab('admin'); loadAllUsers(); }}>Админ</div>}</div><div className="drawer-content">{drawerTab === 'profile' && (<div className="account-info">{userData?.avatar ? <img src={userData.avatar} className="account-avatar-large" alt="avatar" /> : <div className="account-avatar-large">{(userData?.nickname?.[0] || user.email[0]).toUpperCase()}</div>}<div className="avatar-input"><input type="text" placeholder="URL аватара" value={avatarUrl} onChange={e => setAvatarUrl(e.target.value)} /><input type="file" accept="image/*" onChange={e => setAvatarFile(e.target.files[0])} /><button onClick={uploadAvatar} disabled={uploadingAvatar}>{uploadingAvatar ? 'Загрузка...' : 'Загрузить аватар'}</button></div><div className="account-nick">{userData?.nickname || user.email.split('@')[0]} {isPremium && <span className="premium-star">⭐</span>} {isAdmin && <span className="admin-badge">Админ</span>}</div><div className="account-email">{user.email}</div><button className="logout-btn" onClick={logout}>Выйти</button></div>)}
+                {isRightDrawerOpen && (<div className="menu-overlay" onClick={() => setIsRightDrawerOpen(false)}><div className="right-drawer" onClick={e => e.stopPropagation()}><div className="drawer-header"><h3>Аккаунт</h3><button className="drawer-close" onClick={() => setIsRightDrawerOpen(false)}>✕</button></div><div className="drawer-tabs"><div className={`drawer-tab ${drawerTab === 'profile' ? 'active' : ''}`} onClick={() => setDrawerTab('profile')}>Профиль</div><div className={`drawer-tab ${drawerTab === 'chat' ? 'active' : ''}`} onClick={() => { setDrawerTab('chat'); loadAllUsers(); }}>Чат</div>{isAdmin && <div className={`drawer-tab ${drawerTab === 'admin' ? 'active' : ''}`} onClick={() => { setDrawerTab('admin'); loadAllUsers(); }}>Админ</div>}</div><div className="drawer-content">{drawerTab === 'profile' && (<div className="account-info">{userData?.avatar ? <img src={userData.avatar} className="account-avatar-large" alt="avatar" /> : <div className="account-avatar-large">{(userData?.nickname?.[0] || user.email[0]).toUpperCase()}</div>}<div className="avatar-input"><input type="text" placeholder="URL аватара" value={avatarUrl} onChange={e => setAvatarUrl(e.target.value)} /><input type="file" accept="image/*" onChange={e => setAvatarFile(e.target.files[0])} /><button onClick={uploadAvatar} disabled={uploadingAvatar}>{uploadingAvatar ? 'Загрузка...' : 'Загрузить аватар'}</button></div><div className="account-nick">{userData?.nickname || user.email.split('@')[0]} {isPremium && <span className="premium-star">⭐</span>} {isAdmin && <span className="admin-badge">Админ</span>}</div><div className="account-email">{user.email}</div><div className="cooldown-info">{!isAdmin && (cooldownRemaining > 0 ? `⚠️ Создать новую игру можно через ${cooldownRemaining} дн.` : '✅ Вы можете создать новую игру')}</div><button className="logout-btn" onClick={logout}>Выйти</button></div>)}
                 {drawerTab === 'chat' && (<div style={{display:'flex', flexDirection:'column', gap:'16px'}}>{!selectedChatUser ? (<div className="chat-users-list"><h4>Пользователи</h4>{usersList.filter(u => u.uid !== user.uid).map(u => (<div key={u.uid} className="user-list-item" onClick={() => selectChatUser(u)}>{u.avatar ? <img src={u.avatar} className="user-avatar" alt="avatar" /> : <div className="user-avatar">{u.nickname?.[0] || u.email[0].toUpperCase()}</div>}<div className="user-info"><div className="user-name">{u.nickname || u.email.split('@')[0]} {u.premium && <span className="premium-star">⭐</span>} {u.isAdmin && <span className="admin-badge">Админ</span>}</div><div className="user-email">{u.email}</div></div>{unreadCounts[u.uid] > 0 && <span style={{background:'var(--unread-dot)', color:'white', borderRadius:'12px', padding:'2px 8px'}}>{unreadCounts[u.uid]}</span>}</div>))}</div>) : (<div className="chat-conversation"><button className="back-button" onClick={() => { if(chatUnsubscribeRef.current) chatUnsubscribeRef.current(); setSelectedChatUser(null); }}>← Назад к списку</button><div className="chat-messages">{chatMessages.map((msg, idx) => (<div key={idx} className={`message ${msg.sender === user.uid ? 'sent' : 'received'}`}><div>{msg.text}</div><div className="message-time">{msg.timestamp?.toDate?.().toLocaleTimeString() || ''}</div></div>))}<div ref={messagesEndRef} /></div><div className="chat-input-area"><input className="chat-input" value={newMessage} onChange={e => setNewMessage(e.target.value)} onKeyPress={e => e.key === 'Enter' && sendMessage()} placeholder="Сообщение..." /><button onClick={sendMessage} style={{padding:'10px 20px', borderRadius:'40px', background:'var(--accent)', color:'white', border:'none'}}>Отправить</button></div></div>)}</div>)}
                 {drawerTab === 'admin' && isAdmin && (<div style={{display:'flex', flexDirection:'column', gap:'24px'}}><div><h3>Пользователи</h3>{usersList.map(u => (<div key={u.uid} className="admin-user-row">{u.avatar ? <img src={u.avatar} className="user-avatar" alt="avatar" /> : <div className="user-avatar">{u.nickname?.[0] || '?'}</div>}<div className="user-info"><div className="user-name">{u.nickname} {u.premium && <span className="premium-star">⭐</span>} {u.isAdmin && <span className="admin-badge">Админ</span>} {u.banned && <span className="banned-tag">Забанен</span>}</div><div className="user-email">{u.email}</div></div><button onClick={() => toggleBanUser(u.uid, !u.banned)}>{u.banned ? 'Разбанить' : 'Забанить'}</button><button onClick={() => togglePremium(u.uid, !u.premium)}>{u.premium ? 'Снять премиум' : '⭐ Дать премиум'}</button><button onClick={() => toggleAdmin(u.uid, !u.isAdmin)}>{u.isAdmin ? 'Забрать админку' : 'Сделать админом'}</button></div>))}</div><div><h3>Все игры</h3>{allGames.map(game => (<div key={game.id} className="game-item-row"><span>{game.title} {game.isBuiltIn ? '(встроенная)' : `(автор: ${game.author})`}</span><div><button onClick={() => { editCustomGame(game); setIsRightDrawerOpen(false); }}>✏️</button>{!game.isBuiltIn && <button onClick={() => { confirmDeleteGame(game.id); setIsRightDrawerOpen(false); }}>🗑️</button>}<button onClick={() => toggleGameVisibility(game)}>{game.publicVisible ? '🔒 Скрыть' : '🌍 Опубликовать'}</button></div></div>))}</div></div>)}
                 </div></div></div>)}
