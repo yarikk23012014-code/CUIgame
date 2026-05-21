@@ -221,6 +221,34 @@ body[data-theme=dark] .sys-msg{background:#78350f;color:#fed7aa;}
 .pm-scr-row{display:flex;gap:8px;overflow-x:auto;}
 .pm-scr-row img{width:180px;height:110px;object-fit:cover;border-radius:12px;cursor:pointer;flex-shrink:0;}
 .pm-play-btn{background:var(--accent);color:#fff;border:none;padding:14px 32px;border-radius:40px;cursor:pointer;font-size:1.05rem;font-weight:700;width:100%;margin-top:8px;}
+/* COMMENTS */
+.comments-section{border-top:1px solid var(--border);padding-top:14px;margin-top:4px;}
+.comments-title{font-weight:700;font-size:.95rem;margin-bottom:10px;}
+.comment-item{display:flex;gap:9px;margin-bottom:12px;position:relative;}
+.comment-body{flex:1;background:var(--bg);border-radius:14px;padding:9px 12px;}
+.comment-nick{font-weight:700;font-size:.82rem;color:var(--accent);}
+.comment-text{font-size:.88rem;margin-top:3px;line-height:1.4;word-break:break-word;}
+.comment-time{font-size:.68rem;color:var(--text2);margin-top:4px;}
+.comment-inp-row{display:flex;gap:7px;margin-top:10px;}
+.comment-inp-row input{flex:1;padding:9px 13px;border-radius:40px;border:1.5px solid var(--border);background:var(--card);color:var(--text);font-size:.88rem;}
+.comment-inp-row button{background:var(--accent);border:none;padding:9px 14px;border-radius:40px;color:#fff;cursor:pointer;font-weight:600;}
+/* POLL FIX */
+.poll-card{background:var(--bg);border-radius:14px;padding:12px 14px;border:1px solid var(--border);min-width:220px;flex:1;}
+.poll-opt{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:10px;border:1.5px solid var(--border);cursor:pointer;margin-bottom:5px;font-size:.88rem;transition:.12s;background:var(--card);}
+.poll-opt:hover{border-color:var(--accent);}
+.poll-opt.voted{background:var(--accent);color:#fff;border-color:var(--accent);}
+.poll-votes-bar{height:4px;background:var(--btn);border-radius:4px;margin-top:4px;overflow:hidden;}
+.poll-votes-fill{height:100%;background:var(--accent);border-radius:4px;transition:width .3s;}
+/* ADMIN USER PROFILE MODAL */
+.user-profile-modal{position:fixed;inset:0;background:var(--card);z-index:400;display:flex;flex-direction:column;overflow-y:auto;}
+.user-profile-hdr{display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--card);z-index:1;}
+.user-profile-body{padding:18px;display:flex;flex-direction:column;gap:16px;max-width:700px;margin:0 auto;width:100%;}
+.msg-preview{background:var(--bg);border-radius:10px;padding:8px 12px;margin-bottom:5px;font-size:.84rem;}
+.msg-preview .mp-meta{font-size:.72rem;color:var(--text2);margin-bottom:3px;}
+.admin-three-dots{background:none;border:none;cursor:pointer;font-size:1.2rem;padding:4px 8px;border-radius:8px;color:var(--text2);}
+.admin-three-dots:hover{background:var(--btn);}
+.poll-results-modal{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);z-index:450;display:flex;align-items:center;justify-content:center;}
+.poll-results-box{background:var(--card);border-radius:20px;padding:20px;width:min(480px,94vw);max-height:82vh;overflow-y:auto;border:1px solid var(--border);}
 /* FULLSCREEN GAME */
 .fs-overlay{position:fixed;inset:0;background:#0b1120;z-index:300;display:flex;flex-direction:column;}
 .fs-hdr{background:#0f172a;border-bottom:1px solid #1e293b;transition:opacity .3s,transform .3s;}
@@ -492,6 +520,12 @@ function App(){
   const [transferTo,setTransferTo]=useState('');
   const [transferAmt,setTransferAmt]=useState('');
   const [pollModal,setPollModal]=useState(false); // admin poll creator
+  const [pollResultsModal,setPollResultsModal]=useState(null); // poll to show results
+  const [userProfileModal,setUserProfileModal]=useState(null); // admin user profile view
+  const [userProfileData,setUserProfileData]=useState(null); // messages/comments for profile
+  const [comments,setComments]=useState({}); // {gameId: [{id,text,author,authorId,avatar,timestamp}]}
+  const [commentInput,setCommentInput]=useState('');
+  const [commentCtx,setCommentCtx]=useState(null); // context menu for comments
   const [bannerModal,setBannerModal]=useState(false); // admin banner creator
 
   // chat state
@@ -617,7 +651,7 @@ function App(){
 
   // close ctx menus
   useEffect(()=>{
-    const h=()=>{setUserCtx(null);setMsgCtx(null);};
+    const h=()=>{setUserCtx(null);setMsgCtx(null);setCommentCtx(null);};
     window.addEventListener('click',h);
     return()=>window.removeEventListener('click',h);
   },[]);
@@ -644,6 +678,13 @@ function App(){
       db.collection('users').doc(user.uid).update({gameHistory}).catch(()=>{});
     }
   },[gameHistory,user]);
+
+  // Load comments when preview modal opens
+  useEffect(()=>{
+    if(cardPreviewModal?.id){
+      loadComments(cardPreviewModal.id);
+    }
+  },[cardPreviewModal?.id]);
 
   // ===== AUTH LISTENER =====
   useEffect(()=>{
@@ -905,6 +946,67 @@ function App(){
     await ref.set({count,uid,lastAt:new Date()},{merge:true});
     setViolations(prev=>({...prev,[uid]:count}));
   };
+
+  // ===== COMMENTS =====
+  const loadComments=async(gameId)=>{
+    const snap=await db.collection('gameComments').doc(gameId).collection('comments').orderBy('timestamp','asc').get();
+    const cms=snap.docs.map(d=>({id:d.id,...d.data()}));
+    setComments(prev=>({...prev,[gameId]:cms}));
+  };
+  const sendComment=async(gameId)=>{
+    if(!commentInput.trim()||!user)return;
+    if(hasBad(commentInput)){
+      // Auto-delete bad word comments - mark violation
+      await recordViolation(user.uid);
+      setCommentInput('');
+      return;
+    }
+    const comment={text:commentInput,authorId:user.uid,author:userData.nickname||user.email.split('@')[0],avatar:userData.avatar||null,timestamp:new Date().toISOString()};
+    const ref=await db.collection('gameComments').doc(gameId).collection('comments').add(comment);
+    setComments(prev=>({...prev,[gameId]:[...(prev[gameId]||[]),{id:ref.id,...comment}]}));
+    setCommentInput('');
+    // track sent messages for achievement
+    await db.collection('users').doc(user.uid).update({sentMessages:firebase.firestore.FieldValue.increment(1)}).catch(()=>{});
+  };
+  const deleteComment=async(gameId,commentId)=>{
+    await db.collection('gameComments').doc(gameId).collection('comments').doc(commentId).delete();
+    setComments(prev=>({...prev,[gameId]:(prev[gameId]||[]).filter(c=>c.id!==commentId)}));
+    setCommentCtx(null);
+  };
+
+  // ===== ADMIN USER PROFILE VIEW =====
+  const openUserProfile=async(u)=>{
+    setUserProfileModal(u);
+    setUserProfileData(null);
+    // Load recent chats with this user
+    const chatData=[];
+    try{
+      // Get chats involving this user
+      const chatSnap=await db.collection('chats').where('participants','array-contains',u.uid).get();
+      for(const doc of chatSnap.docs){
+        const other=doc.data().participants.find(p=>p!==u.uid);
+        const otherUser=users.find(x=>x.uid===other)||{nickname:other?.slice(0,8)||'?'};
+        const msgsSnap=await doc.ref.collection('messages').orderBy('timestamp','desc').limit(3).get();
+        msgsSnap.docs.forEach(m=>{chatData.push({...m.data(),withUser:otherUser.nickname||other?.slice(0,8)});});
+      }
+    }catch{}
+    // Load comments by this user
+    const userComments=[];
+    try{
+      const gamesSnap=await db.collection('gameComments').get();
+      for(const gameDoc of gamesSnap.docs){
+        const cSnap=await gameDoc.ref.collection('comments').where('authorId','==',u.uid).get();
+        cSnap.docs.forEach(c=>userComments.push({...c.data(),gameId:gameDoc.id,commentId:c.id}));
+      }
+    }catch{}
+    setUserProfileData({chats:chatData,comments:userComments,email:u.email});
+  };
+  const deleteCommentAdmin=async(gameId,commentId)=>{
+    await db.collection('gameComments').doc(gameId).collection('comments').doc(commentId).delete();
+    if(userProfileData){
+      setUserProfileData(prev=>({...prev,comments:prev.comments.filter(c=>c.commentId!==commentId)}));
+    }
+  };
   const addBanner=async()=>{
     if(!newBannerText.trim()||banners.length>=3)return;
     const nb=[...banners,{text:newBannerText,color:newBannerColor,id:Date.now().toString()}];
@@ -1159,14 +1261,37 @@ function App(){
     )),
 
     // POLLS (shown under banners)
-    polls.length>0&&e('div',{style:{padding:'10px 18px',background:'var(--card)',borderBottom:'1px solid var(--border)',display:'flex',gap:12,flexWrap:'wrap'}},
-      polls.map(poll=>e('div',{key:poll.id,style:{minWidth:200,background:'var(--bg)',borderRadius:12,padding:'10px 14px',border:'1px solid var(--border)'}},
-        e('div',{style:{fontWeight:700,fontSize:'.85rem',marginBottom:6}},'📊 Опрос'),
-        poll.options.map((opt,i)=>e('div',{key:i,className:'poll-option'+(poll.votes&&poll.votes[user.uid]===i?' voted':''),onClick:()=>votePoll(poll.id,i)},
-          e('span',null,opt),
-          poll.rewards[i]>0&&e('span',{className:'kdb-badge',style:{marginLeft:'auto'}},`+${poll.rewards[i]} KDB`)
-        ))
-      ))
+    polls.length>0&&e('div',{style:{padding:'10px 18px',background:'var(--card)',borderBottom:'1px solid var(--border)',display:'flex',gap:10,flexWrap:'wrap'}},
+      polls.map(poll=>{
+        const myVote=poll.votes&&poll.votes[user.uid];
+        const hasVoted=myVote!==undefined;
+        const totalVotes=Object.keys(poll.votes||{}).length;
+        return e('div',{key:poll.id,className:'poll-card'},
+          e('div',{style:{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:8}},
+            e('div',{style:{fontWeight:700,fontSize:'.88rem'}},'📊 Опрос'),
+            e('div',{style:{display:'flex',alignItems:'center',gap:6}},
+              e('span',{style:{fontSize:'.72rem',color:'var(--text2)'}},(totalVotes)+' голосов'),
+              isAdmin&&e('button',{className:'admin-three-dots',onClick:()=>setPollResultsModal(poll)},'⋯')
+            )
+          ),
+          poll.options.map((opt,i)=>{
+            const voteCount=Object.values(poll.votes||{}).filter(v=>v===i).length;
+            const pct=totalVotes?Math.round(voteCount/totalVotes*100):0;
+            return e('div',{key:i,
+              className:'poll-opt'+(myVote===i?' voted':''),
+              onClick:()=>!hasVoted&&votePoll(poll.id,i),
+              style:{cursor:hasVoted?'default':'pointer'}
+            },
+              e('span',{style:{flex:1}},opt),
+              hasVoted&&myVote===i&&poll.rewards[i]>0&&e('span',{className:'kdb-badge'},`+${poll.rewards[i]} KDB`),
+              hasVoted&&e('span',{style:{fontSize:'.75rem',opacity:.7,marginLeft:4}},pct+'%'),
+              hasVoted&&e('div',{className:'poll-votes-bar',style:{position:'absolute',bottom:0,left:0,right:0,height:3,borderRadius:'0 0 10px 10px'}},
+                e('div',{className:'poll-votes-fill',style:{width:pct+'%'}})
+              )
+            );
+          })
+        );
+      })
     ),
 
     // HEADER
@@ -1384,8 +1509,13 @@ function App(){
               )
             ),
             e('div',{className:'admin-search'},e('input',{placeholder:'Поиск...',value:adminSearch,onChange:ev=>setAdminSearch(ev.target.value)})),
-            adminUsers.map(u=>e('div',{key:u.uid,className:'admin-user'},
-              e(Av,{src:u.avatar,letter:(u.nickname?.[0]||'?'),cls:'av-md',onClick:()=>u.avatar&&setFsAvatar(u.avatar)}),
+            adminUsers.map(u=>e('div',{key:u.uid,className:'admin-user',
+              onMouseDown:()=>{longPress.current=setTimeout(()=>openUserProfile(u),700);},
+              onMouseUp:()=>clearTimeout(longPress.current),
+              onTouchStart:()=>{longPress.current=setTimeout(()=>openUserProfile(u),700);},
+              onTouchEnd:()=>clearTimeout(longPress.current)
+            },
+              e(Av,{src:u.avatar,letter:(u.nickname?.[0]||'?'),cls:'av-md',onClick:()=>openUserProfile(u)}),
               e('div',{className:'admin-user-info'},
                 e('div',{style:{display:'flex',alignItems:'center',gap:5}},
                   e('strong',{style:{fontSize:'.84rem'}},u.nickname||u.email,' ',u.premium&&'⭐',' ',u.isAdmin&&'👑',' ',u.banned&&'🚫'),
@@ -1543,7 +1673,31 @@ function App(){
         ),
         cardPreviewModal.description&&e('div',{style:{fontSize:'.92rem',lineHeight:1.6,color:'var(--text)'}},cardPreviewModal.description),
         !cardPreviewModal.description&&e('div',{style:{fontSize:'.88rem',color:'var(--text2)',fontStyle:'italic'}},'Описание не добавлено'),
-        e('button',{className:'pm-play-btn',onClick:()=>openGame(cardPreviewModal)},'▶ Играть')
+        e('button',{className:'pm-play-btn',onClick:()=>openGame(cardPreviewModal)},'▶ Играть'),
+
+        // COMMENTS
+        e('div',{className:'comments-section'},
+          e('div',{className:'comments-title'},'💬 Комментарии'),
+          (comments[cardPreviewModal.id]||[]).map(c=>
+            e('div',{key:c.id,className:'comment-item',
+              onContextMenu:ev=>{ev.preventDefault();ev.stopPropagation();setCommentCtx({x:Math.min(ev.clientX,window.innerWidth-160),y:ev.clientY,comment:c,gameId:cardPreviewModal.id});},
+              onTouchStart:()=>{longPress.current=setTimeout(()=>setCommentCtx({x:80,y:200,comment:c,gameId:cardPreviewModal.id}),600);},
+              onTouchEnd:()=>clearTimeout(longPress.current)
+            },
+              e(Av,{src:c.avatar,letter:(c.author?.[0]||'?').toUpperCase(),cls:'av-md'}),
+              e('div',{className:'comment-body'},
+                e('div',{className:'comment-nick'},c.author),
+                e('div',{className:'comment-text'},c.text),
+                e('div',{className:'comment-time'},c.timestamp?new Date(c.timestamp).toLocaleString():'')
+              )
+            )
+          ),
+          (comments[cardPreviewModal.id]||[]).length===0&&e('div',{style:{fontSize:'.82rem',color:'var(--text2)',fontStyle:'italic'}},'Комментариев пока нет'),
+          e('div',{className:'comment-inp-row'},
+            e('input',{placeholder:'Написать комментарий...',value:commentInput,onChange:ev=>setCommentInput(ev.target.value),onKeyPress:ev=>ev.key==='Enter'&&sendComment(cardPreviewModal.id)}),
+            e('button',{onClick:()=>sendComment(cardPreviewModal.id)},'→')
+          )
+        )
       )
     ),
 
@@ -1666,12 +1820,80 @@ function App(){
     fsAvatar&&e('div',{className:'fs-avatar',onClick:()=>setFsAvatar(null)},e('img',{src:fsAvatar,alt:''})),
     fsScr&&e('div',{className:'fs-scr',onClick:()=>setFsScr(null)},e('img',{src:fsScr,alt:''})),
 
+    // COMMENT CONTEXT MENU
+    commentCtx&&e('div',{className:'ctx-menu',style:{top:commentCtx.y,left:commentCtx.x},onClick:ev=>ev.stopPropagation()},
+      e('div',{onClick:()=>{navigator.clipboard.writeText(commentCtx.comment.text||'');setCommentCtx(null);}},'📋 Скопировать'),
+      (commentCtx.comment.authorId===user.uid||isAdmin)&&e('div',{onClick:()=>deleteComment(commentCtx.gameId,commentCtx.comment.id)},'🗑️ Удалить')
+    ),
+
+    // ADMIN USER PROFILE MODAL
+    userProfileModal&&e('div',{className:'user-profile-modal'},
+      e('div',{className:'user-profile-hdr'},
+        e('button',{className:'pm-back',style:{position:'static'},onClick:()=>{setUserProfileModal(null);setUserProfileData(null);}},T.back),
+        e(Av,{src:userProfileModal.avatar,letter:(userProfileModal.nickname?.[0]||'?').toUpperCase(),cls:'av-md'}),
+        e('div',null,
+          e('div',{style:{fontWeight:700,fontSize:'.95rem'}},userProfileModal.nickname||'—'),
+          isAdmin&&e('div',{style:{fontSize:'.75rem',color:'var(--text2)'}},userProfileModal.email||'—')
+        )
+      ),
+      e('div',{className:'user-profile-body'},
+        !userProfileData&&e('div',{style:{textAlign:'center',padding:40,color:'var(--text2)'}},'⏳ Загрузка...'),
+        userProfileData&&e('div',null,
+          // Recent chats
+          e('div',{style:{fontWeight:700,fontSize:'.9rem',marginBottom:8}},'💬 Последние сообщения'),
+          userProfileData.chats.length===0&&e('div',{style:{fontSize:'.82rem',color:'var(--text2)',marginBottom:12}},'Нет сообщений'),
+          userProfileData.chats.map((m,i)=>e('div',{key:i,className:'msg-preview'},
+            e('div',{className:'mp-meta'},`С: ${m.withUser} · ${m.timestamp?new Date(m.timestamp).toLocaleString():''}`),
+            e('div',null,m.text)
+          )),
+          // Comments
+          e('div',{style:{fontWeight:700,fontSize:'.9rem',margin:'14px 0 8px'}},'🗨️ Комментарии под играми'),
+          userProfileData.comments.length===0&&e('div',{style:{fontSize:'.82rem',color:'var(--text2)'}},'Нет комментариев'),
+          userProfileData.comments.map((c,i)=>e('div',{key:i,className:'msg-preview',style:{display:'flex',justifyContent:'space-between',alignItems:'flex-start'}},
+            e('div',null,
+              e('div',{className:'mp-meta'},`Игра: ${c.gameId} · ${c.timestamp?new Date(c.timestamp).toLocaleString():''}`),
+              e('div',null,c.text)
+            ),
+            e('button',{onClick:()=>deleteCommentAdmin(c.gameId,c.commentId),style:{background:'#dc2626',border:'none',color:'#fff',borderRadius:8,padding:'3px 8px',cursor:'pointer',fontSize:'.72rem',flexShrink:0,marginLeft:8}},'🗑️')
+          ))
+        )
+      )
+    ),
+
+    // POLL RESULTS MODAL (admin)
+    pollResultsModal&&e('div',{className:'poll-results-modal',onClick:()=>setPollResultsModal(null)},
+      e('div',{className:'poll-results-box',onClick:ev=>ev.stopPropagation()},
+        e('h2',{style:{marginBottom:14}},'📊 Результаты опроса'),
+        pollResultsModal.options.map((opt,i)=>{
+          const voters=Object.entries(pollResultsModal.votes||{}).filter(([,v])=>v===i);
+          const pct=Object.keys(pollResultsModal.votes||{}).length?Math.round(voters.length/Object.keys(pollResultsModal.votes||{}).length*100):0;
+          return e('div',{key:i,style:{marginBottom:12,background:'var(--bg)',borderRadius:12,padding:'10px 14px'}},
+            e('div',{style:{display:'flex',justifyContent:'space-between',fontWeight:600,fontSize:'.88rem',marginBottom:5}},
+              e('span',null,opt),
+              e('span',null,`${voters.length} (${pct}%) ${pollResultsModal.rewards[i]>0?'+'+pollResultsModal.rewards[i]+' KDB':''}`)
+            ),
+            e('div',{style:{height:6,background:'var(--btn)',borderRadius:6,overflow:'hidden'}},
+              e('div',{style:{height:'100%',width:pct+'%',background:'var(--accent)',borderRadius:6,transition:'width .3s'}})
+            ),
+            voters.length>0&&e('div',{style:{marginTop:6,display:'flex',flexWrap:'wrap',gap:4}},
+              voters.map(([uid])=>{
+                const u=users.find(x=>x.uid===uid);
+                return e('span',{key:uid,style:{background:'var(--btn)',padding:'2px 8px',borderRadius:10,fontSize:'.72rem'}},u?.nickname||uid.slice(0,8));
+              })
+            )
+          );
+        }),
+        e('div',{className:'modal-acts'},e('button',{className:'btn-cancel',onClick:()=>setPollResultsModal(null)},'Закрыть'))
+      )
+    ),
+
     // USER CTX MENU
     userCtx&&e('div',{className:'ctx-menu',style:{top:userCtx.y,left:userCtx.x},onClick:ev=>ev.stopPropagation()},
       e('div',{onClick:()=>{openChat(userCtx.u);setUserCtx(null);}},'💬 Написать'),
       e('div',{onClick:()=>{toggleHide(userCtx.u.uid);setUserCtx(null);}},hidden[userCtx.u.uid]?'👁️ Показать':'🙈 Скрыть'),
       e('div',{onClick:()=>{toggleFav(userCtx.u.uid);setUserCtx(null);}},favs[userCtx.u.uid]?'★ Убрать избр.':'☆ В избранное'),
-      e('div',{onClick:()=>{setViewingUser(userCtx.u.uid);setDrawerOpen(false);setUserCtx(null);}},`🎮 Игры игрока`)
+      e('div',{onClick:()=>{setViewingUser(userCtx.u.uid);setDrawerOpen(false);setUserCtx(null);}},`🎮 Игры игрока`),
+      isAdmin&&e('div',{onClick:()=>{openUserProfile(userCtx.u);setUserCtx(null);}},'👤 Профиль (Адм)')
     ),
 
     // MSG CTX MENU
@@ -1730,5 +1952,4 @@ function App(){
 ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
 </script>
 </body>
-</html>
-,
+</
