@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<DOCTYPE html>
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
@@ -35,6 +35,13 @@ body[data-bgtint=on][data-accent=pink][data-theme=dark]{--bg:#500724;--card:#831
 body[data-bgtint=on][data-accent=pink]:not([data-theme=dark]){--bg:#fdf2f8;--btn:#fbcfe8;--btn2:#f9a8d4;}
 /* CAT FONT */
 body[data-font=cat] *{font-family:'Comic Sans MS','Chalkboard SE',cursive!important;letter-spacing:.03em;}
+body[data-font=bread] *{font-family:'Georgia','Times New Roman',serif!important;}
+body[data-font=bread]{--bg:#fef3c7!important;--card:#fffbeb!important;--btn:#fde68a!important;}
+body[data-font=thin] *{font-family:'Arial Narrow',Arial,sans-serif!important;}
+body[data-font=pixel] *{font-family:'Courier New',monospace!important;letter-spacing:.04em;}
+.bread-rain{position:fixed;inset:0;pointer-events:none;z-index:9999;overflow:hidden;}
+.bread-piece{position:absolute;top:-60px;animation:breadfall linear infinite;cursor:pointer;pointer-events:all;user-select:none;}
+@keyframes breadfall{from{transform:translateY(-60px) rotate(0deg);}to{transform:translateY(110vh) rotate(360deg);}}
 /* ANIMATIONS */
 body[data-animations=on] .sidebar{animation:slideL .25s cubic-bezier(.4,0,.2,1);}
 body[data-animations=on] .drawer{animation:slideR .25s cubic-bezier(.4,0,.2,1);}
@@ -80,10 +87,28 @@ body{background:var(--bg);color:var(--text);}
 .mute-banner{background:#fef3c7;color:#92400e;padding:6px 14px;text-align:center;font-size:.8rem;}
 body[data-theme=dark] .mute-banner{background:#78350f;color:#fed7aa;}
 /* GRID */
-.grid{flex:1;padding:18px;display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;padding-bottom:90px;}
+.grid{flex:1;padding:18px;display:grid;grid-template-columns:repeat(var(--grid-cols,4),1fr);gap:16px;padding-bottom:90px;}
 .card{background:var(--card);border-radius:16px;border:1.5px solid var(--border);box-shadow:var(--shadow);cursor:pointer;transition:transform .18s,box-shadow .18s;overflow:hidden;position:relative;user-select:none;}
 .card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.1);}
 .card.updated{border:2px solid #fbbf24;animation:glow 2s infinite;}
+.card.event-card{border:2px solid #8b5cf6;animation:eventGlow 2s infinite;}
+@keyframes eventGlow{0%,100%{box-shadow:0 0 0 0 #8b5cf655;}50%{box-shadow:0 0 10px 4px #8b5cf688;}}
+.event-instructions-fs{position:fixed;inset:0;background:var(--card);z-index:600;display:flex;flex-direction:column;overflow-y:auto;}
+.patch-notes-overlay{position:fixed;inset:0;background:rgba(0,0,0,0);z-index:9500;display:flex;align-items:center;justify-content:center;transition:background 1.2s ease;overflow:hidden;}
+.patch-notes-overlay.dark{background:rgba(0,0,0,.88);}
+.patch-dot{position:absolute;width:6px;height:6px;border-radius:50%;background:#60a5fa;box-shadow:0 0 8px 2px #60a5fa;animation:dotFly 1s ease-in forwards;}
+@keyframes dotFly{from{opacity:1;}to{opacity:0;transform:translate(var(--dx),var(--dy)) scale(.2);}}
+.patch-core{width:14px;height:14px;border-radius:50%;background:#60a5fa;box-shadow:0 0 20px 8px #60a5fa,0 0 40px 16px #60a5fa88;animation:coreGrow 1.6s ease-out 0.9s forwards;opacity:0;}
+@keyframes coreGrow{0%{opacity:0;width:14px;height:14px;border-radius:50%;}30%{opacity:1;width:14px;height:14px;border-radius:50%;}70%{width:60px;height:60px;border-radius:50%;opacity:1;}100%{width:min(420px,86vw);height:auto;border-radius:24px;opacity:0;}}
+.patch-rect{position:absolute;background:var(--card);border:1px solid var(--accent);border-radius:24px;padding:26px 24px;width:min(420px,86vw);box-shadow:0 0 40px 10px rgba(96,165,250,.3);opacity:0;animation:rectIn .5s ease 2.2s forwards;text-align:center;}
+@keyframes rectIn{from{opacity:0;transform:scale(.9);}to{opacity:1;transform:scale(1);}}
+.patch-rect h2{margin-bottom:10px;font-size:1.05rem;}
+.patch-rect .changes{font-size:.86rem;color:var(--text2);text-align:left;margin:12px 0;line-height:1.6;}
+.patch-rect button{background:var(--accent);color:#fff;border:none;padding:10px 28px;border-radius:40px;cursor:pointer;font-weight:700;margin-top:6px;width:100%;}
+.event-instructions-fs .content{padding:20px;max-width:700px;margin:0 auto;line-height:1.7;font-size:.92rem;}
+.event-instructions-fs h3{margin:18px 0 8px;color:var(--accent);}
+.event-instructions-fs code{background:var(--bg);padding:2px 6px;border-radius:6px;font-family:monospace;font-size:.85rem;}
+.event-instructions-fs pre{background:var(--bg);padding:12px;border-radius:10px;overflow-x:auto;font-size:.78rem;margin:8px 0;}
 @keyframes glow{0%,100%{box-shadow:0 0 0 0 #fbbf2455;}50%{box-shadow:0 0 8px 3px #fbbf2488;}}
 .card-preview{height:126px;background:#f8fafc;border-bottom:1px solid var(--border);overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center;}
 body[data-theme=dark] .card-preview{background:#0f172a;}
@@ -123,6 +148,12 @@ body[data-theme=dark] .card-preview{background:#0f172a;}
 .drw-tab:hover{background:var(--btn);}
 .drw-tab.act{background:var(--accent);color:#fff;}
 .drw-body{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;}
+.drw-body.chat-mode{overflow:hidden;padding:14px 14px 0;}
+.chat-area{display:flex;flex-direction:column;height:100%;min-height:0;}
+.chat-fs-btn{background:var(--btn);border:none;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:1rem;color:var(--text);flex-shrink:0;}
+.chat-fs-overlay{position:fixed;inset:0;background:var(--card);z-index:380;display:flex;flex-direction:column;}
+.chat-fs-overlay .chat-fs-hdr{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.chat-fs-overlay .chat-fs-body{flex:1;display:flex;flex-direction:column;padding:14px 14px 0;min-height:0;overflow:hidden;}
 /* PROFILE */
 .profile-ctr{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;}
 .nick-big{font-size:1.2rem;font-weight:700;}
@@ -148,10 +179,10 @@ body[data-theme=dark] .card-preview{background:#0f172a;}
 .star-btn.off{color:var(--text2);opacity:.4;}
 .group-row{display:flex;align-items:center;gap:7px;padding:7px;border-radius:9px;cursor:pointer;border-bottom:1px solid var(--border);}
 .group-row:hover{background:var(--btn);}
-.chat-area{display:flex;flex-direction:column;height:100%;}
-.back-btn{background:var(--btn);border:none;padding:6px 12px;border-radius:20px;cursor:pointer;font-size:.8rem;color:var(--text);margin-bottom:8px;align-self:flex-start;}
+.back-btn-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-shrink:0;}
+.back-btn{background:var(--btn);border:none;padding:6px 12px;border-radius:20px;cursor:pointer;font-size:.8rem;color:var(--text);align-self:flex-start;}
 .back-btn:hover{background:var(--btn2);}
-.messages{flex:1;overflow-y:auto;padding:9px;background:var(--bg);border-radius:13px;margin-bottom:7px;max-height:340px;display:flex;flex-direction:column;gap:5px;}
+.messages{flex:1;overflow-y:auto;padding:9px;background:var(--bg);border-radius:13px;margin-bottom:7px;display:flex;flex-direction:column;gap:5px;min-height:0;}
 .msg{padding:6px 11px;border-radius:15px;max-width:80%;word-wrap:break-word;cursor:context-menu;font-size:.87rem;}
 .msg.sent{background:var(--accent);color:#fff;align-self:flex-end;border-radius:15px 15px 3px 15px;}
 .msg.recv{background:var(--border);color:var(--text);align-self:flex-start;border-radius:15px 15px 15px 3px;}
@@ -232,6 +263,119 @@ body[data-theme=dark] .sys-msg{background:#78350f;color:#fed7aa;}
 .comment-inp-row{display:flex;gap:7px;margin-top:10px;}
 .comment-inp-row input{flex:1;padding:9px 13px;border-radius:40px;border:1.5px solid var(--border);background:var(--card);color:var(--text);font-size:.88rem;}
 .comment-inp-row button{background:var(--accent);border:none;padding:9px 14px;border-radius:40px;color:#fff;cursor:pointer;font-weight:600;}
+/* STAR RATING */
+.star-rating{display:flex;gap:3px;margin:6px 0;}
+.star-rating span{font-size:1.5rem;cursor:pointer;transition:transform .1s;line-height:1;}
+.star-rating span:hover{transform:scale(1.15);}
+.star-display{display:flex;gap:1px;font-size:.88rem;align-items:center;}
+.rating-count{font-size:.7rem;color:var(--text2);margin-left:4px;}
+/* WALLET FULLSCREEN */
+.wallet-fs{position:fixed;inset:0;background:var(--card);z-index:400;display:flex;flex-direction:column;overflow:hidden;}
+.wallet-glow{position:absolute;bottom:-80px;left:50%;transform:translateX(-50%);width:360px;height:360px;background:radial-gradient(circle,rgba(249,115,22,.35) 0%,transparent 70%);pointer-events:none;animation:wglow 2.5s ease-in-out infinite alternate;}
+/* SHOP */
+.shop-fs{position:fixed;inset:0;background:var(--card);z-index:400;display:flex;flex-direction:column;overflow-y:auto;}
+.site-toast{position:fixed;top:16px;left:50%;transform:translateX(-50%);background:var(--card);border:1px solid var(--accent);box-shadow:0 6px 24px rgba(0,0,0,.2);border-radius:16px;padding:12px 20px;z-index:9000;font-size:.88rem;font-weight:600;animation:toastIn .3s ease;max-width:90vw;}
+@keyframes toastIn{from{transform:translate(-50%,-20px);opacity:0;}to{transform:translate(-50%,0);opacity:1;}}
+.shop-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;padding:16px;}
+.inv-fs{position:fixed;inset:0;background:var(--card);z-index:400;display:flex;flex-direction:column;overflow-y:auto;}
+.inv-emoji-row{display:flex;align-items:center;justify-content:center;gap:14px;padding:30px 16px;}
+.inv-nav-btn{background:var(--btn);border:none;width:42px;height:42px;border-radius:50%;font-size:1.2rem;cursor:pointer;color:var(--text);flex-shrink:0;}
+.inv-nav-btn:disabled{opacity:.3;cursor:default;}
+.inv-emoji-slots{display:flex;gap:14px;flex:1;justify-content:center;}
+.inv-emoji-slot{background:var(--bg);border:2px solid var(--border);border-radius:18px;width:84px;height:84px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:2rem;position:relative;cursor:pointer;transition:.15s;}
+.inv-emoji-slot:hover{border-color:var(--accent);transform:scale(1.05);}
+.inv-emoji-slot .stock-badge{position:absolute;bottom:3px;right:3px;background:var(--accent);color:#fff;font-size:.62rem;font-weight:700;border-radius:8px;padding:1px 5px;}
+.inv-emoji-slot.empty{opacity:.25;border-style:dashed;cursor:default;}
+.inv-key-card{background:var(--bg);border:1px solid var(--border);border-radius:14px;padding:14px;text-align:center;display:flex;flex-direction:column;gap:6px;}
+.inv-key-card .key-icon{font-size:2rem;}
+.inv-key-card .key-name{font-weight:700;font-size:.84rem;}
+.nick-attach-fs{position:fixed;inset:0;background:var(--card);z-index:700;display:flex;flex-direction:column;padding:16px;}
+.nick-attach-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px;}
+.nick-attach-emoji{font-size:5rem;margin-bottom:14px;animation:popIn .3s ease;}
+.nick-attach-opts{display:flex;flex-direction:column;gap:10px;width:100%;max-width:320px;}
+.nick-attach-opts button{padding:13px;font-size:.92rem;}
+/* CASE OPENING */
+.case-open-modal{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(6px);z-index:600;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.case-spinner-track{width:90vw;max-width:480px;height:120px;overflow:hidden;position:relative;background:var(--card);border-radius:16px;border:2px solid var(--accent);}
+.case-spinner-track::after{content:'';position:absolute;top:0;left:50%;width:3px;height:100%;background:#fbbf24;z-index:5;transform:translateX(-50%);}
+.case-spinner-strip{display:flex;align-items:center;height:100%;animation:spinStrip 4.5s cubic-bezier(.1,.7,.15,1) forwards;}
+@keyframes spinStrip{from{transform:translateX(0);}to{transform:translateX(-2253px);}}
+.case-spin-item{width:90px;height:90px;flex-shrink:0;margin:0 6px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:2.4rem;border:2px solid var(--border);}
+.case-result-card{background:var(--card);border-radius:20px;padding:24px;text-align:center;margin-top:20px;border:3px solid;animation:popIn .3s ease;}
+.case-result-emoji{font-size:4rem;margin-bottom:8px;}
+/* WEEKLY REWARD */
+.weekly-modal{position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(6px);z-index:550;display:flex;align-items:center;justify-content:center;}
+.weekly-box{background:var(--card);border-radius:24px;padding:24px;width:min(440px,92vw);text-align:center;}
+.weekly-opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0;}
+.weekly-opt{background:var(--bg);border:2px solid var(--border);border-radius:16px;padding:16px 10px;cursor:pointer;transition:.15s;}
+.weekly-opt:hover{border-color:var(--accent);transform:scale(1.03);}
+.weekly-opt.picked{border-color:#22c55e;background:#22c55e22;}
+.weekly-opt .emoji{font-size:2.2rem;margin-bottom:6px;}
+/* ONLINE STATUS */
+.online-dot{width:10px;height:10px;border-radius:50%;position:absolute;bottom:-1px;right:-1px;border:2px solid var(--card);}
+.av-sticker{position:absolute;bottom:-4px;left:-4px;font-size:.9em;background:var(--card);border-radius:50%;line-height:1;padding:1px;}
+.online-dot.on{background:#22c55e;box-shadow:0 0 6px 2px #22c55eaa;animation:onlinePulse 1.6s infinite;}
+.online-dot.off{background:#94a3b8;}
+@keyframes onlinePulse{0%,100%{box-shadow:0 0 4px 1px #22c55eaa;}50%{box-shadow:0 0 9px 4px #22c55ecc;}}
+.avatar-wrap{position:relative;display:inline-flex;}
+/* PAGINATION LOAD MORE */
+.load-more-btn{grid-column:1/-1;text-align:center;padding:16px;}
+.load-more-btn button{background:var(--btn);border:none;padding:10px 24px;border-radius:40px;cursor:pointer;font-weight:600;color:var(--text);}
+.shop-item{background:var(--bg);border-radius:16px;padding:14px;border:1px solid var(--border);text-align:center;display:flex;flex-direction:column;gap:6px;align-items:center;}
+.shop-item .emoji{font-size:2.2rem;}
+.shop-item .name{font-weight:700;font-size:.82rem;}
+.shop-item .price{font-size:.75rem;color:var(--text2);}
+.shop-item button{background:var(--accent);color:#fff;border:none;padding:6px 14px;border-radius:20px;cursor:pointer;font-size:.78rem;font-weight:600;width:100%;}
+.shop-item button:disabled{background:var(--btn);color:var(--text2);cursor:default;}
+.shop-item.owned{border-color:var(--accent);background:linear-gradient(135deg,var(--accent)11,var(--bg));}
+/* EMOJI PICKER in chat */
+.emoji-picker{position:absolute;bottom:52px;left:0;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:10px;display:flex;flex-wrap:wrap;gap:6px;max-width:280px;box-shadow:0 4px 20px rgba(0,0,0,.15);z-index:100;}
+.emoji-picker .ep-item{position:relative;cursor:pointer;width:42px;height:42px;display:flex;align-items:center;justify-content:center;}
+.emoji-picker .ep-item span:first-child{font-size:1.6rem;line-height:1;border-radius:8px;display:block;pointer-events:none;}
+.emoji-picker .ep-item:hover span:first-child{background:var(--btn);}
+.emoji-picker .ep-count{position:absolute;bottom:-4px;right:-4px;background:var(--accent);color:#fff;font-size:.58rem;font-weight:700;border-radius:8px;padding:0 4px;min-width:14px;text-align:center;line-height:1.4;pointer-events:none;}
+.chat-inp-wrap{position:relative;}
+.emoji-btn{background:none;border:none;font-size:1.2rem;cursor:pointer;padding:0 6px;color:var(--text2);}
+.emoji-ring-btn{width:38px;height:38px;border-radius:50%;border:none;cursor:pointer;flex-shrink:0;padding:3px;background:conic-gradient(#22c55e 100%,transparent 0%);box-shadow:0 0 8px 2px #22c55e88,0 0 2px 1px #22c55e;transition:background .3s;}
+.emoji-ring-inner{display:flex;align-items:center;justify-content:center;width:100%;height:100%;border-radius:50%;background:var(--card);font-size:1.05rem;}
+/* FULLSCREEN game controls */
+.fs-phone-bar{position:fixed;bottom:0;left:0;right:0;background:rgba(15,23,42,.92);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:space-between;padding:10px 18px;z-index:310;border-top:1px solid #334155;}
+.fs-phone-btn{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:#fff;padding:8px 16px;border-radius:20px;cursor:pointer;font-size:.82rem;font-weight:600;}
+.fs-expand-btn{position:fixed;bottom:14px;right:16px;background:rgba(15,23,42,.85);border:1px solid #334155;color:#fff;width:40px;height:40px;border-radius:50%;cursor:pointer;font-size:1.1rem;z-index:310;display:flex;align-items:center;justify-content:center;}
+/* NICK badge on nick */
+.nick-emoji{font-size:1.1rem;cursor:pointer;margin-left:4px;}
+/* edit comment */
+.comment-edit-row{display:flex;flex-direction:column;gap:6px;margin-top:6px;}
+.comment-edit-row input{padding:6px 10px;border-radius:10px;border:1.5px solid var(--border);background:var(--bg);color:var(--text);font-size:.85rem;}
+.comment-edit-row .star-rating span{font-size:1.1rem;}
+@keyframes wglow{from{opacity:.5;transform:translateX(-50%) scale(.88);}to{opacity:1;transform:translateX(-50%) scale(1.12);}}
+.wallet-hdr{padding:14px 18px;display:flex;align-items:center;gap:10px;position:relative;z-index:1;}
+.wallet-body{flex:1;overflow-y:auto;padding:0 18px 18px;position:relative;z-index:1;}
+.wallet-card{background:linear-gradient(135deg,#f59e0b,#f97316);border-radius:22px;padding:22px 24px;color:#fff;margin-bottom:18px;box-shadow:0 8px 28px rgba(249,115,22,.35);}
+.wallet-code-label{font-size:.72rem;opacity:.8;letter-spacing:.1em;margin-bottom:4px;}
+.wallet-amount{font-size:2.8rem;font-weight:900;margin:8px 0;}
+.wallet-user{font-size:.85rem;opacity:.85;}
+.wallet-tabs{display:flex;gap:6px;margin-bottom:14px;}
+.wallet-tab{flex:1;padding:8px;border:none;border-radius:11px;background:var(--btn);color:var(--text);cursor:pointer;font-weight:600;font-size:.83rem;}
+.wallet-tab.act{background:var(--accent);color:#fff;}
+.tx-item{display:flex;align-items:center;gap:9px;padding:9px;border-bottom:1px solid var(--border);}
+.tx-icon{font-size:1.3rem;flex-shrink:0;}
+.tx-info{flex:1;}
+.tx-title{font-size:.84rem;font-weight:600;}
+.tx-date{font-size:.7rem;color:var(--text2);}
+.tx-amt{font-weight:700;font-size:.92rem;}
+.tx-amt.plus{color:#22c55e;}
+.tx-amt.minus{color:#ef4444;}
+.xfer-code-box{background:var(--bg);border-radius:14px;padding:14px;border:1px solid var(--border);margin-bottom:10px;}
+.xfer-code-big{font-size:2rem;font-weight:900;letter-spacing:.18em;text-align:center;color:var(--accent);margin:8px 0;font-family:monospace;}
+.xfer-code-bar{height:5px;background:var(--btn);border-radius:5px;overflow:hidden;margin-top:5px;}
+.xfer-code-fill{height:100%;background:var(--accent);border-radius:5px;transition:width .3s;}
+/* POLL SETTINGS */
+.poll-settings-modal{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(4px);z-index:450;display:flex;align-items:flex-end;justify-content:center;}
+.poll-settings-box{background:var(--card);border-radius:22px 22px 0 0;padding:22px 20px;width:min(500px,100vw);border-top:1px solid var(--border);}
+/* PREMIUM MODAL */
+.premium-buy-modal{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(6px);z-index:500;display:flex;align-items:center;justify-content:center;}
+.premium-buy-box{background:var(--card);border-radius:24px;padding:28px 24px;width:min(380px,92vw);text-align:center;border:1px solid var(--border);}
 /* POLL FIX */
 .poll-card{background:var(--bg);border-radius:14px;padding:12px 14px;border:1px solid var(--border);min-width:220px;flex:1;}
 .poll-opt{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:10px;border:1.5px solid var(--border);cursor:pointer;margin-bottom:5px;font-size:.88rem;transition:.12s;background:var(--card);}
@@ -429,25 +573,29 @@ function useLS(k,init){
 }
 
 // Avatar component
-function Av({src,letter,cls,onClick}){
-  return e('div',{className:cls||'av-md',onClick},
-    src?e('img',{src,alt:'',onError:ev=>{ev.target.style.display='none';}}):letter
+function Av({src,letter,cls,onClick,online,stickerEmoji}){
+  return e('div',{className:'avatar-wrap'},
+    e('div',{className:cls||'av-md',onClick},
+      src?e('img',{src,alt:'',onError:ev=>{ev.target.style.display='none';}}):letter
+    ),
+    stickerEmoji&&e('span',{className:'av-sticker'},stickerEmoji),
+    online!==undefined&&e('span',{className:'online-dot '+(online?'on':'off')})
   );
 }
 
 function App(){
   // ===== ALL STATE (hooks in fixed order) =====
-  // settings persisted
-  const [lang,setLang]=useLS('lang','ru');
-  const [themeMode,setThemeMode]=useLS('themeMode','light');
-  const [font,setFont]=useLS('font','standard');
-  const [scale,setScale]=useLS('scale',1);
-  const [animations,setAnimations]=useLS('animations','on');
-  const [phoneMode,setPhoneMode]=useLS('phoneMode',false);
-  const [accentColor,setAccentColor]=useLS('accentColor','blue');
-  const [bgTint,setBgTint]=useLS('bgTint','off');
-  const [showBeta,setShowBeta]=useLS('showBeta',true);
-  const [customAccent,setCustomAccent]=useLS('customAccent','');
+  // settings - NOT persisted to localStorage, only to Firestore per-account
+  const [lang,setLang]=useState('ru');
+  const [themeMode,setThemeMode]=useState('light');
+  const [font,setFont]=useState('standard');
+  const [scale,setScale]=useState(1);
+  const [animations,setAnimations]=useState('on');
+  const [phoneMode,setPhoneMode]=useState(false);
+  const [accentColor,setAccentColor]=useState('blue');
+  const [bgTint,setBgTint]=useState('off');
+  const [showBeta,setShowBeta]=useState(true);
+  const [customAccent,setCustomAccent]=useState('');
   // temp settings
   const [tLang,setTLang]=useState(lang);
   const [tTheme,setTTheme]=useState(themeMode);
@@ -466,6 +614,8 @@ function App(){
   const [user,setUser]=useState(null);
   const [userData,setUserData]=useState(null);
   const [loading,setLoading]=useState(true);
+  const [loadError,setLoadError]=useState(false);
+  const [retryCount,setRetryCount]=useState(0);
   const [authMode,setAuthMode]=useState('login');
   const [authEmail,setAuthEmail]=useState('');
   const [authPass,setAuthPass]=useState('');
@@ -489,11 +639,19 @@ function App(){
   const [openGames,setOpenGames]=useState([]);
   const [activeGame,setActiveGame]=useState(null);
   const [filterType,setFilterType]=useState('all');
+  const [favGames,setFavGames]=useState({}); // {gameId: true} - loaded from Firestore per account
+  const [gridRows,setGridRows]=useState(3); // 3 or 4
+  const [gridCols,setGridCols]=useState(4); // 3-8
+  const [tGridRows,setTGridRows]=useState(3);
+  const [tGridCols,setTGridCols]=useState(4);
   const [searchQ,setSearchQ]=useState('');
   const [sortType,setSortType]=useState('popular');
   const [lastSeen,setLastSeen]=useState({});
   const [viewingUser,setViewingUser]=useState(null);
   const [watchedGames,setWatchedGames]=useLS('watchedGames',{});
+  const [notifyOnline,setNotifyOnline]=useState({}); // {uid: true} - per account, saved to Firestore
+  const [notifyMsg,setNotifyMsg]=useState({});
+  const wasOnlineRef=useRef({}); // track previous online state to detect transitions
 
   // UI state
   const [menuOpen,setMenuOpen]=useState(false);
@@ -509,6 +667,8 @@ function App(){
   const [editPreview,setEditPreview]=useState('');
   const [editDesc,setEditDesc]=useState('');
   const [editScr,setEditScr]=useState([]);
+  const [editDisableDownload,setEditDisableDownload]=useState(false);
+  const [editPrice,setEditPrice]=useState(0);
   const [scrInput,setScrInput]=useState('');
   const [deleteModal,setDeleteModal]=useState(null);
   const [infoModal,setInfoModal]=useState(null);
@@ -525,7 +685,119 @@ function App(){
   const [userProfileData,setUserProfileData]=useState(null); // messages/comments for profile
   const [comments,setComments]=useState({}); // {gameId: [{id,text,author,authorId,avatar,timestamp}]}
   const [commentInput,setCommentInput]=useState('');
-  const [commentCtx,setCommentCtx]=useState(null); // context menu for comments
+  const [commentCtx,setCommentCtx]=useState(null);
+  const [commentStars,setCommentStars]=useState(0); // star rating before sending comment
+  const [hoverStar,setHoverStar]=useState(0);
+  // Wallet
+  const [walletOpen,setWalletOpen]=useState(false);
+  const [walletTab,setWalletTab]=useState('history'); // history | send | receive
+  const [transactions,setTransactions]=useState([]); // loaded from Firestore subcollection, per account
+  const [xferCodeInput,setXferCodeInput]=useState(''); // code to receive
+  const [myXferCode,setMyXferCode]=useState(null); // generated send code
+  const [myXferAmt,setMyXferAmt]=useState('');
+  const [xferCodeData,setXferCodeData]=useState(null); // active code in DB
+  const [xferLoading,setXferLoading]=useState(false);
+  // Poll settings per poll
+  const [pollSettingsModal,setPollSettingsModal]=useState(null); // poll id
+  const [pollAllowChange,setPollAllowChange]=useState({});
+  const [pollMultiSelect,setPollMultiSelect]=useState({});
+  const [pollMaxSelect,setPollMaxSelect]=useState({});
+  // Premium buy modal
+  const [premiumBuyModal,setPremiumBuyModal]=useState(false);
+  const [premiumBuying,setPremiumBuying]=useState(false);
+  // Shop & emoji
+  const EMOJI_CATALOG=[
+    {id:'cat_smile',emoji:'😸',name:'Кот улыбается',how:'Активируй кошачий шрифт',rarity:'common'},
+    {id:'cat_heart',emoji:'😻',name:'Кот с сердечком',how:'Поиграй в 10 игр',rarity:'common'},
+    {id:'cat_cool',emoji:'😎',name:'Кот крутой',how:'Получи Премиум',rarity:'rare'},
+    {id:'cat_angry',emoji:'😾',name:'Кот злой',how:'Напиши 50 сообщений',rarity:'common'},
+    {id:'cat_ghost',emoji:'🙀',name:'Кот испуган',how:'Открой 10 игр',rarity:'common'},
+    {id:'cat_plain',emoji:'🐱',name:'Кот',how:'Создай первую игру',rarity:'common'},
+    {id:'cat_paw',emoji:'🐾',name:'Лапка',how:'Поиграй в 5 игр',rarity:'common'},
+    {id:'bread_plain',emoji:'🍞',name:'Хлеб',how:'Активируй хлебный шрифт',rarity:'common'},
+    {id:'bread_bag',emoji:'🥖',name:'Багет',how:'Купи хлебный шрифт',rarity:'common'},
+    {id:'bread_cross',emoji:'🥐',name:'Круассан',how:'Напиши 5-звёздный отзыв',rarity:'common'},
+    {id:'bread_pret',emoji:'🥨',name:'Крендель',how:'Поиграй в лабиринт',rarity:'common'},
+    {id:'exc_red',emoji:'❗',name:'Восклицание',how:'Напиши 100 сообщений',rarity:'common'},
+    {id:'exc_dbl',emoji:'‼️',name:'Двойное восклицание',how:'Создай 3 игры',rarity:'rare'},
+    {id:'exc_q',emoji:'⁉️',name:'Вопрос-восклицание',how:'Проголосуй в 5 опросах',rarity:'common'},
+    {id:'fire',emoji:'🔥',name:'Огонь',how:'Набери 100 KDB',rarity:'common'},
+    {id:'lightning',emoji:'⚡',name:'Молния',how:'Игра с 5-звёздным рейтингом',rarity:'rare'},
+    {id:'rainbow',emoji:'🌈',name:'Радуга',how:'Смени тему 10 раз',rarity:'rare'},
+    {id:'dragon',emoji:'🐉',name:'Дракон',how:'Набери 500 KDB',rarity:'epic'},
+    {id:'unicorn',emoji:'🦄',name:'Единорог',how:'Поиграй в 20 игр',rarity:'rare'},
+    {id:'ghost',emoji:'👻',name:'Призрак',how:'31 октября',rarity:'rare'},
+    {id:'robot',emoji:'🤖',name:'Робот',how:'Используй ИИ чат 10 раз',rarity:'common'},
+    {id:'alien',emoji:'👽',name:'Пришелец',how:'Поиграй в 20 разных игр',rarity:'rare'},
+    {id:'crown',emoji:'👑',name:'Корона',how:'Стань администратором',rarity:'legendary'},
+    {id:'gem',emoji:'💎',name:'Алмаз',how:'Потрать 100 KDB',rarity:'epic'},
+    {id:'rocket',emoji:'🚀',name:'Ракета',how:'100 игроков в своей игре',rarity:'epic'},
+    {id:'star_glow',emoji:'🌟',name:'Звезда',how:'Получи Премиум',rarity:'rare'},
+    {id:'trophy',emoji:'🏆',name:'Трофей',how:'Все достижения',rarity:'legendary'},
+    {id:'chart_emoji',emoji:'📊',name:'Аналитик',how:'Открой аналитику 15 раз',rarity:'rare'},
+    {id:'penguin',emoji:'🐧',name:'Пингвин',how:'Сыграй в Тетрис 5 раз',rarity:'common'},
+    {id:'fox',emoji:'🦊',name:'Лиса',how:'Смени ник 3 раза',rarity:'common'},
+    {id:'wolf',emoji:'🐺',name:'Волк',how:'Напиши 10 комментариев',rarity:'common'},
+    {id:'admin_star',emoji:'⭐',name:'Звезда Администратора',how:'Выдаётся администратором',rarity:'legendary'},
+    {id:'rare',emoji:'💠',name:'Редкий кристалл',how:'Выдаётся администратором',rarity:'legendary'},
+    {id:'red_clock',emoji:'⏰',name:'Красные часы',how:'Выдаётся администратором',rarity:'legendary'},
+    // === SUMMER / BEACH SET ===
+    {id:'beach_umbrella',emoji:'🏖️',name:'Пляжный зонтик',how:'Выбивается из пляжного сундука',rarity:'rare'},
+    {id:'beach_sea',emoji:'🌊',name:'Морская волна',how:'Выбивается из пляжного сундука',rarity:'rare'},
+    {id:'beach_sand',emoji:'🏝️',name:'Песчаный остров',how:'Выбивается из пляжного сундука',rarity:'rare'},
+    {id:'beach_shell',emoji:'🐚',name:'Ракушка',how:'Выбивается из пляжного сундука',rarity:'rare'},
+    {id:'beach_sun',emoji:'☀️',name:'Летнее солнце',how:'Выбивается из пляжного сундука',rarity:'rare'},
+    {id:'beach_cocktail',emoji:'🍹',name:'Коктейль',how:'Выбивается из пляжного сундука',rarity:'rare'},
+    {id:'beach_tsunami',emoji:'🌪️',name:'Цунами',how:'Выбивается из пляжного сундука (редкий выпад)',rarity:'epic'},
+    // === New extra emojis ===
+    {id:'tiger',emoji:'🐯',name:'Тигр',how:'Сыграй в Память 5 раз',rarity:'common'},
+    {id:'panda',emoji:'🐼',name:'Панда',how:'Сыграй в 2048 до 1024',rarity:'rare'},
+    {id:'octopus',emoji:'🐙',name:'Осьминог',how:'Получи 5 KDB переводом',rarity:'common'},
+    {id:'butterfly',emoji:'🦋',name:'Бабочка',how:'Поставь 10 оценок',rarity:'common'},
+    {id:'volcano',emoji:'🌋',name:'Вулкан',how:'Набери 1000 KDB',rarity:'legendary'},
+    {id:'tornado',emoji:'🌪️',name:'Торнадо',how:'Открой 50 игр',rarity:'epic'},
+    {id:'wizard',emoji:'🧙',name:'Волшебник',how:'Используй все 4 ИИ-чата',rarity:'rare'},
+    {id:'genie',emoji:'🧞',name:'Джинн',how:'Открой 3 кейса',rarity:'rare'},
+    {id:'medal',emoji:'🏅',name:'Медаль',how:'Стань топ-1 по рейтингу игры',rarity:'epic'},
+    {id:'box_emoji',emoji:'📦',name:'Коробка',how:'Купи смайлик-коробку',rarity:'common'},
+  ];
+  const RARITY_COLORS={common:'#94a3b8',rare:'#3b82f6',epic:'#a855f7',legendary:'#f59e0b'};
+  const RARITY_CHANCES={common:55,rare:28,epic:13,legendary:4};
+  const RARITY_NAMES={common:'Обычный',rare:'Редкий',epic:'Эпический',legendary:'Легендарный'};
+
+  const [shopOpen,setShopOpen]=useState(false);
+  const [inventoryModalOpen,setInventoryModalOpen]=useState(false);
+  const [invTab,setInvTab]=useState('emojis'); // emojis | cases | keys
+  const [invEmojiPage,setInvEmojiPage]=useState(0); // 4 emojis per page
+  const [breadRain,setBreadRain]=useState(false);
+  const [breadPieces,setBreadPieces]=useState([]);
+  const [chatFullscreen,setChatFullscreen]=useState(false);
+  const [emojiStock,setEmojiStock]=useState({}); // {emojiId: remaining uses} - per account, in Firestore
+  const [marketListings,setMarketListings]=useState([]);
+  const [shopSearch,setShopSearch]=useState('');
+  const [shopTab,setShopTab]=useState('catalog');
+  const [marketFilterEmoji,setMarketFilterEmoji]=useState(null); // filter market by specific emoji id
+  const [marketSort,setMarketSort]=useState('cheap');
+  const [marketShown,setMarketShown]=useState(12);
+  // Cases / weekly rewards
+  const [weeklyRewardModal,setWeeklyRewardModal]=useState(false);
+  const [weeklyOptions,setWeeklyOptions]=useState([]);
+  const [weeklyPicked,setWeeklyPicked]=useState([]);
+  const [caseOpenAnim,setCaseOpenAnim]=useState(null); // {caseId, result, spinning}
+  const [inventory,setInventory]=useState([]); // owned emoji ids
+  // Game list pagination
+  const [gamesPage,setGamesPage]=useState(0);
+  useEffect(()=>{setGamesPage(0);},[searchQ,filterType,sortType,viewingUser]);
+  const [nickEmojiFront,setNickEmojiFront]=useState([]); // up to 3 emoji ids shown before nick
+  const [nickEmojiBack,setNickEmojiBack]=useState([]); // up to 3 emoji ids shown after nick
+  const [nickEmojiAvatar,setNickEmojiAvatar]=useState(null); // single emoji id shown as avatar sticker
+  const MAX_NICK_EMOJI_PER_SIDE=3;
+  const [nickAttachChoice,setNickAttachChoice]=useState(null); // emoji catalog item pending front/back choice
+  const [emojiPickerOpen,setEmojiPickerOpen]=useState(false);
+  const [editingComment,setEditingComment]=useState(null); // {id,gameId,text,stars}
+  // Fullscreen controls (mobile)
+  const [fsExpanded,setFsExpanded]=useState(false); // true = phone fullscreen
+  const [showFsBar,setShowFsBar]=useState(false);
   const [bannerModal,setBannerModal]=useState(false); // admin banner creator
 
   // chat state
@@ -554,6 +826,14 @@ function App(){
   const [adminFilter,setAdminFilter]=useState('all');
   const [violations,setViolations]=useState({});
   const [banners,setBanners]=useState([]);
+  const [eventGameHtml,setEventGameHtml]=useState('');
+  const [eventTitle,setEventTitle]=useState('');
+  const [eventDesc,setEventDesc]=useState('');
+  const [eventEditModal,setEventEditModal]=useState(false);
+  const [eventInstructionsOpen,setEventInstructionsOpen]=useState(false);
+  const [tEventHtml,setTEventHtml]=useState('');
+  const [tEventTitle,setTEventTitle]=useState('');
+  const [tEventDesc,setTEventDesc]=useState('');
   const [polls,setPolls]=useState([]);
   const [newBannerText,setNewBannerText]=useState('');
   const [newBannerColor,setNewBannerColor]=useState('red');
@@ -589,11 +869,12 @@ function App(){
     document.body.setAttribute('data-animations',animations);
     document.body.setAttribute('data-bgtint',bgTint);
     document.documentElement.style.setProperty('--scale',scale);
+    document.documentElement.style.setProperty('--grid-cols',gridCols);
     // custom accent color
     if(customAccent){
       document.documentElement.style.setProperty('--accent',customAccent);
     }
-  },[themeMode,font,accentColor,scale,animations,bgTint,customAccent]);
+  },[themeMode,font,accentColor,scale,animations,bgTint,customAccent,gridCols]);
 
   const applySettings=()=>{
     setLang(tLang);setThemeMode(tTheme);setFont(tFont);setScale(tScale);
@@ -657,6 +938,7 @@ function App(){
   },[]);
 
   // progress from iframe
+  const lastEventRewardAt=useRef(0);
   useEffect(()=>{
     const h=ev=>{
       if(ev.data?.type==='saveProgress'){
@@ -666,6 +948,17 @@ function App(){
           if(user) db.collection('users').doc(user.uid).update({gameProgress:u}).catch(()=>{});
           return u;
         });
+      }
+      // Event game can request KD Bucks rewards (rate-limited to 1/sec)
+      if(ev.data?.type==='eventReward'&&user){
+        const now=Date.now();
+        if(now-lastEventRewardAt.current<1000)return;
+        lastEventRewardAt.current=now;
+        const amt=Math.max(-50,Math.min(50,parseInt(ev.data.amount)||0));
+        if(amt!==0){
+          addKdbucks(amt);
+          addTransaction({type:'event',label:ev.data.reason||'Ивент-награда',amount:amt});
+        }
       }
     };
     window.addEventListener('message',h);
@@ -689,14 +982,29 @@ function App(){
   // ===== AUTH LISTENER =====
   useEffect(()=>{
     let cls=[];
+    let firstSnapshotReceived=false;
+    let timeoutId=null;
+
+    // Give Firestore up to 2 minutes to respond. If it never does, show a connection error screen.
+    timeoutId=setTimeout(()=>{
+      if(!firstSnapshotReceived){
+        setLoadError(true);
+        setLoading(false);
+      }
+    },120000);
+
     const u=auth.onAuthStateChanged(async cu=>{
       setUser(cu);
       if(cu){
         const c1=db.collection('users').doc(cu.uid).onSnapshot(doc=>{
+          firstSnapshotReceived=true;
+          clearTimeout(timeoutId);
+          setLoadError(false);
           if(!doc.exists){
-            const def={email:cu.email,nickname:'',gameProgress:{},gameHistory:[],banned:false,premium:false,isAdmin:false,avatar:null,lastGameCreated:null,favChats:{},muteUntil:null,kdbucks:0,achievements:{},sentMessages:0};
-            db.collection('users').doc(cu.uid).set(def);
+            const def={email:cu.email,nickname:'',gameProgress:{},gameHistory:[],banned:false,premium:false,isAdmin:false,avatar:null,lastGameCreated:null,favChats:{},muteUntil:null,kdbucks:0,achievements:{},sentMessages:0,inventory:[],nickEmojiFront:[],nickEmojiBack:[],nickEmojiAvatar:null};
+            db.collection('users').doc(cu.uid).set(def).catch(()=>setLoadError(true));
             setNickModal(true);setUserData(def);
+            setInventory([]);setNickEmojiFront([]);setNickEmojiBack([]);setNickEmojiAvatar(null);
           } else {
             const d=doc.data();
             if(d.banned&&d.email!=='yarikk23012014@gmail.com'){auth.signOut();return;}
@@ -705,7 +1013,26 @@ function App(){
             setGameHistory(d.gameHistory||[]);
             setKdbucks(d.kdbucks||0);
             setAchievements(d.achievements||{});
+            setInventory(d.inventory||[]);
+            setEmojiStock(d.emojiStock||{});
+            setGameKeys(d.gameKeys||{});
+            setNickEmojiFront(d.nickEmojiFront||(d.nickEmoji&&typeof d.nickEmoji==='object'&&d.nickEmoji.position==='front'?[EMOJI_CATALOG.find(s=>s.emoji===d.nickEmoji.emoji)?.id].filter(Boolean):[]));
+            setNickEmojiBack(d.nickEmojiBack||(d.nickEmoji&&typeof d.nickEmoji==='object'&&d.nickEmoji.position==='back'?[EMOJI_CATALOG.find(s=>s.emoji===d.nickEmoji.emoji)?.id].filter(Boolean):[]));
+            setNickEmojiAvatar(d.nickEmojiAvatar||(d.nickEmoji&&typeof d.nickEmoji==='object'&&d.nickEmoji.position==='avatar'?EMOJI_CATALOG.find(s=>s.emoji===d.nickEmoji.emoji)?.id:null));
+            // Only show nick modal if nickname is genuinely empty.
+            // doc.metadata.fromCache helps avoid flashing the nick modal on a stale
+            // offline-cache read that arrives before the real server data.
+            if((!d.nickname||d.nickname.trim()==='')&&!doc.metadata.fromCache){
+              setNickModal(true);
+            } else if(d.nickname&&d.nickname.trim()!==''){
+              setNickModal(false);
+            }
           }
+          setLoading(false);
+        },err=>{
+          // Firestore listener itself failed (offline, blocked, etc)
+          clearTimeout(timeoutId);
+          setLoadError(true);
           setLoading(false);
         });
         const c2=db.collection('games').onSnapshot(snap=>{
@@ -722,24 +1049,92 @@ function App(){
             setGlobalHide(doc.data().hideUntil?.toDate()||null);
             setBanners(doc.data().banners||[]);
             setPolls(doc.data().polls||[]);
+            setEventGameHtml(doc.data().eventGameHtml||'');
+            setEventTitle(doc.data().eventTitle||'');
+            setEventDesc(doc.data().eventDesc||'');
           }
         });
         db.collection('users').doc(cu.uid).collection('gameSeen').get().then(snap=>{
           const seen={};snap.docs.forEach(d=>{seen[d.id]=d.data().lastSeen?.toDate?.()||null;});setLastSeen(seen);
-        });
+        }).catch(()=>{});
         db.collection('violations').get().then(snap=>{
           const v={};snap.docs.forEach(d=>{v[d.id]=d.data().count||0;});setViolations(v);
-        });
+        }).catch(()=>{});
         if('Notification' in window) setNotifPerms(Notification.permission);
         cls=[c1,c2,c3,c4,c5];
       } else {
-        setUserData(null);setCustomGames([]);setGameProgress({});setGameHistory([]);setLoading(false);
+        clearTimeout(timeoutId);
+        setUserData(null);setCustomGames([]);setGameProgress({});setGameHistory([]);
+        setKdbucks(0);setAchievements({});setInventory([]);setNickEmojiFront([]);setNickEmojiBack([]);setNickEmojiAvatar(null);setEmojiStock({});setTransactions([]);
+        setLoading(false);
+        setLoadError(false);
       }
     });
-    return()=>{u();cls.forEach(f=>f&&f());};
+    return()=>{clearTimeout(timeoutId);u();cls.forEach(f=>f&&f());};
+  },[retryCount]);
+
+  // Load market listings
+  useEffect(()=>{
+    const u=db.collection('market').onSnapshot(snap=>{
+      setMarketListings(snap.docs.map(d=>({id:d.id,...d.data()})));
+    });
+    return()=>u();
   },[]);
 
+  // ===== ONLINE PRESENCE HEARTBEAT =====
+  useEffect(()=>{
+    if(!user)return;
+    const updatePresence=()=>{
+      db.collection('users').doc(user.uid).update({lastActive:new Date().toISOString()}).catch(()=>{});
+    };
+    updatePresence();
+    const interval=setInterval(updatePresence,20000);
+    const onVisible=()=>{if(document.visibilityState==='visible')updatePresence();};
+    document.addEventListener('visibilitychange',onVisible);
+    window.addEventListener('focus',updatePresence);
+    return()=>{clearInterval(interval);document.removeEventListener('visibilitychange',onVisible);window.removeEventListener('focus',updatePresence);};
+  },[user]);
+  const isUserOnline=(u)=>{
+    if(!u?.lastActive)return false;
+    return(Date.now()-new Date(u.lastActive).getTime())<60000; // 60s window
+  };
+
+  // ===== LOCK BODY SCROLL when fullscreen overlays are open =====
+  useEffect(()=>{
+    const anyFullscreenOpen=shopOpen||walletOpen||settingsOpen||drawerOpen||menuOpen||!!cardPreviewModal||!!infoModal||aiOpen||!!userProfileModal||!!chatFullscreen;
+    if(anyFullscreenOpen){
+      document.body.style.overflow='hidden';
+      document.body.style.position='fixed';
+      document.body.style.width='100%';
+    } else {
+      document.body.style.overflow='';
+      document.body.style.position='';
+      document.body.style.width='';
+    }
+  },[shopOpen,walletOpen,settingsOpen,drawerOpen,menuOpen,cardPreviewModal,infoModal,aiOpen,userProfileModal,chatFullscreen]);
+
+  // Periodic poll for online-status notifications (only if any are enabled)
+  useEffect(()=>{
+    if(!user)return;
+    const hasAnyNotify=Object.values(notifyOnline).some(Boolean);
+    if(!hasAnyNotify)return;
+    const poll=async()=>{
+      const watchedUids=Object.keys(notifyOnline).filter(uid=>notifyOnline[uid]);
+      if(!watchedUids.length)return;
+      const snaps=await Promise.all(watchedUids.map(uid=>db.collection('users').doc(uid).get()));
+      setUsers(prev=>{
+        const map=new Map(prev.map(u=>[u.uid,u]));
+        snaps.forEach((s,i)=>{if(s.exists)map.set(watchedUids[i],{uid:watchedUids[i],...s.data()});});
+        return[...map.values()];
+      });
+    };
+    poll();
+    const interval=setInterval(poll,15000);
+    return()=>clearInterval(interval);
+  },[user,notifyOnline]);
+
   // unread counts
+  const prevUnreadRef=useRef({});
   useEffect(()=>{
     if(!user) return;
     const u=db.collection('chats').where('participants','array-contains',user.uid).onSnapshot(async snap=>{
@@ -751,6 +1146,14 @@ function App(){
           counts[other]=msgs.docs.filter(m=>m.data().sender!==user.uid&&!(m.data().readBy||[]).includes(user.uid)).length;
         }
       }
+      // Detect new messages for notify-enabled users
+      Object.keys(counts).forEach(uid=>{
+        if(notifyMsg[uid]&&counts[uid]>(prevUnreadRef.current[uid]||0)){
+          const senderUser=users.find(x=>x.uid===uid);
+          setSiteToast({text:`💬 ${senderUser?.nickname||'Игрок'} написал вам сообщение`,id:Date.now()});
+        }
+      });
+      prevUnreadRef.current=counts;
       setUnread(counts);
     });
     return()=>u();
@@ -763,6 +1166,15 @@ function App(){
     const snap=await db.collection('users').where('nickname','==',n).get();
     if(excl&&snap.docs.length===1&&snap.docs[0].id===excl)return true;
     return snap.empty;
+  };
+  // Detect emoji characters in a string (used to block emoji in nicknames and game titles)
+  const EMOJI_REGEX=/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{2300}-\u{23FF}\u{2B00}-\u{2BFF}\u{1F1E6}-\u{1F1FF}\uFE0F\u200D]/u;
+  const hasEmoji=(str)=>EMOJI_REGEX.test(str);
+  // Render a nickname string with all attached front/back emoji
+  const nickWithEmoji=(nick)=>{
+    const front=nickEmojiFront.map(id=>EMOJI_CATALOG.find(s=>s.id===id)?.emoji).filter(Boolean).join('');
+    const back=nickEmojiBack.map(id=>EMOJI_CATALOG.find(s=>s.id===id)?.emoji).filter(Boolean).join('');
+    return `${front?front+' ':''}${nick}${back?' '+back:''}`;
   };
   const loadUsers=async()=>{
     const snap=await db.collection('users').get();
@@ -820,12 +1232,16 @@ function App(){
   };
   const setNickname=async()=>{
     if(!nickInput.trim())return;
+    if(hasEmoji(nickInput)){alert('Нельзя использовать смайлики в нике');return;}
     if(!await checkNickUniq(nickInput.trim(),user.uid)){alert('Ник занят');return;}
     await db.collection('users').doc(user.uid).update({nickname:nickInput.trim()});
-    setUserData(prev=>({...prev,nickname:nickInput.trim()}));setNickModal(false);
+    setUserData(prev=>({...prev,nickname:nickInput.trim()}));
+    setNickModal(false);
+    setNickInput('');
   };
   const changeNick=async()=>{
     if(!newNickInput.trim())return;
+    if(hasEmoji(newNickInput)){alert('Нельзя использовать смайлики в нике');return;}
     if(!await checkNickUniq(newNickInput.trim(),user.uid)){alert('Ник занят');return;}
     await db.collection('users').doc(user.uid).update({nickname:newNickInput.trim()});
     setUserData(prev=>({...prev,nickname:newNickInput.trim()}));setNewNickInput('');loadUsers();
@@ -999,7 +1415,23 @@ function App(){
         cSnap.docs.forEach(c=>userComments.push({...c.data(),gameId:gameDoc.id,commentId:c.id}));
       }
     }catch{}
-    setUserProfileData({chats:chatData,comments:userComments,email:u.email});
+    // Load game purchases (who bought this person's games)
+    const gamesBoughtFromThem=[];
+    try{
+      const myGames=customGames.filter(g=>g.authorId===u.uid&&g.price>0);
+      if(myGames.length){
+        const buyersSnap=await db.collection('users').get();
+        buyersSnap.docs.forEach(d=>{
+          const keys=d.data().gameKeys||{};
+          myGames.forEach(g=>{
+            if(keys[g.id]&&d.id!==u.uid){
+              gamesBoughtFromThem.push({gameTitle:g.title,buyerNick:d.data().nickname||d.data().email||d.id.slice(0,8)});
+            }
+          });
+        });
+      }
+    }catch{}
+    setUserProfileData({chats:chatData,comments:userComments,email:u.email,gamesBought:gamesBoughtFromThem});
   };
   const deleteCommentAdmin=async(gameId,commentId)=>{
     await db.collection('gameComments').doc(gameId).collection('comments').doc(commentId).delete();
@@ -1007,7 +1439,588 @@ function App(){
       setUserProfileData(prev=>({...prev,comments:prev.comments.filter(c=>c.commentId!==commentId)}));
     }
   };
-  const addBanner=async()=>{
+
+  // ===== STAR RATINGS =====
+  const getGameRating=(gameId)=>{
+    const cms=comments[gameId]||[];
+    const rated=cms.filter(c=>c.stars>0);
+    if(!rated.length)return 0;
+    return rated.reduce((a,c)=>a+c.stars,0)/rated.length;
+  };
+  const renderStars=(rating,size='sm')=>{
+    const full=Math.round(rating);
+    return e('div',{className:'star-display'},
+      [1,2,3,4,5].map(i=>e('span',{key:i,style:{fontSize:size==='lg'?'1.2rem':'.85rem'}},i<=full?'⭐':'☆')),
+      rating>0&&e('span',{className:'rating-count'},rating.toFixed(1))
+    );
+  };
+
+  // ===== UPDATED sendComment with stars =====
+  const sendCommentWithStars=async(gameId)=>{
+    if(!commentInput.trim()||commentStars===0)return;
+    if(hasBad(commentInput)){
+      await recordViolation(user.uid);
+      setCommentInput('');setCommentStars(0);
+      return;
+    }
+    // Check daily limit (1 per day, 2 for premium)
+    const today=new Date().toDateString();
+    const todayComments=(comments[gameId]||[]).filter(c=>c.authorId===user.uid&&new Date(c.timestamp).toDateString()===today);
+    const limit=isPremium?2:1;
+    if(todayComments.length>=limit){
+      alert(isPremium?'Лимит 2 комментария в день для Премиум':'Лимит 1 комментарий в день. Премиум позволяет 2.');
+      return;
+    }
+    const comment={text:commentInput,stars:commentStars,authorId:user.uid,author:userData.nickname||user.email.split('@')[0],avatar:userData.avatar||null,timestamp:new Date().toISOString()};
+    const ref=await db.collection('gameComments').doc(gameId).collection('comments').add(comment);
+    setComments(prev=>({...prev,[gameId]:[...(prev[gameId]||[]),{id:ref.id,...comment}]}));
+    setCommentInput('');setCommentStars(0);
+    await db.collection('users').doc(user.uid).update({sentMessages:firebase.firestore.FieldValue.increment(1)}).catch(()=>{});
+    // Add tx record
+    addTransaction({type:'comment',label:'Комментарий к игре',gameId});
+  };
+
+  // ===== TRANSACTIONS =====
+  const addTransaction=({type,label,amount,from,to})=>{
+    if(!user)return;
+    const tx={type,label,amount:amount||0,from:from||null,to:to||null,date:new Date().toISOString()};
+    db.collection('users').doc(user.uid).collection('transactions').add(tx).catch(()=>{});
+  };
+  // Realtime listener for own transactions (includes game-sale records pushed by buyers)
+  useEffect(()=>{
+    if(!user)return;
+    const u=db.collection('users').doc(user.uid).collection('transactions').orderBy('date','desc').limit(100).onSnapshot(snap=>{
+      setTransactions(snap.docs.map(d=>({id:d.id,...d.data()})));
+    });
+    return()=>u();
+  },[user]);
+
+  // ===== KDB TRANSFER CODE =====
+  const generateXferCode=async()=>{
+    const amt=parseInt(myXferAmt);
+    if(!amt||amt<=0||amt>kdbucks){alert('Недостаточно KD Bucks');return;}
+    const code=Math.random().toString(36).slice(2,8).toUpperCase();
+    const codeData={code,amount:amt,createdBy:user.uid,createdAt:new Date().toISOString(),used:false,usedBy:null,usedCount:0};
+    await db.collection('kdbCodes').doc(code).set(codeData);
+    // Don't deduct now - deduct when someone receives
+    setXferCodeData(codeData);setMyXferAmt('');
+    addTransaction({type:'send_code',label:'Создан код перевода на '+amt+' KDB',amount:0});
+  };
+  const deleteXferCode=async()=>{
+    if(!xferCodeData)return;
+    if(!window.confirm('Удалить код? Баксы НЕ вернутся (они ещё не были списаны).'))return;
+    await db.collection('kdbCodes').doc(xferCodeData.code).delete();
+    setXferCodeData(null);
+  };
+  const receiveByCode=async()=>{
+    const code=xferCodeInput.trim().toUpperCase();
+    if(code.length!==6){alert('Код должен быть 6 символов');return;}
+    setXferLoading(true);
+    try{
+      const docRef=db.collection('kdbCodes').doc(code);
+      const doc=await docRef.get();
+      if(!doc.exists){alert('Код не найден');setXferLoading(false);return;}
+      const data=doc.data();
+      if(data.used){alert('Код уже использован');setXferLoading(false);return;}
+      if(data.createdBy===user.uid){alert('Нельзя использовать свой код');setXferLoading(false);return;}
+      // Check sender has enough
+      const senderDoc=await db.collection('users').doc(data.createdBy).get();
+      const senderKdb=senderDoc.data()?.kdbucks||0;
+      if(senderKdb<data.amount){alert('У отправителя недостаточно KD Bucks');setXferLoading(false);return;}
+      // Deduct from sender, add to receiver
+      await db.collection('users').doc(data.createdBy).update({kdbucks:firebase.firestore.FieldValue.increment(-data.amount)});
+      await addKdbucks(data.amount);
+      await docRef.update({used:true,usedBy:user.uid,usedAt:new Date().toISOString()});
+      addTransaction({type:'receive_code',label:'Получено по коду',amount:data.amount});
+      setXferCodeInput('');
+      alert(`🎉 Получено ${data.amount} KDB!`);
+    }catch(e){alert('Ошибка: '+e.message);}
+    setXferLoading(false);
+  };
+
+  // ===== BUY PREMIUM =====
+  const buyPremium=async()=>{
+    if(kdbucks<30){alert('Нужно 30 KD Bucks! У вас: '+kdbucks);return;}
+    setPremiumBuying(true);
+    await addKdbucks(-30);
+    addTransaction({type:'premium',label:'Покупка Премиум',amount:-30});
+    await db.collection('users').doc(user.uid).update({premium:true});
+    setUserData(prev=>({...prev,premium:true}));
+    setTimeout(()=>{setPremiumBuying(false);setPremiumBuyModal(false);},1200);
+  };
+
+  // Attach an emoji (by its catalog id) to a nick position. front/back allow up to 3 each; avatar allows only 1.
+  const attachNickEmoji=async(emojiId,position)=>{
+    if(!inventory.includes(emojiId)){alert('Этот смайлик не в инвентаре');return;}
+    if(position==='avatar'){
+      setNickEmojiAvatar(emojiId);
+      setUserData(prev=>({...prev,nickEmojiAvatar:emojiId}));
+      await db.collection('users').doc(user.uid).update({nickEmojiAvatar:emojiId});
+      return;
+    }
+    const list=position==='front'?nickEmojiFront:nickEmojiBack;
+    const setList=position==='front'?setNickEmojiFront:setNickEmojiBack;
+    const field=position==='front'?'nickEmojiFront':'nickEmojiBack';
+    if(list.includes(emojiId))return; // already attached on this side
+    if(list.length>=MAX_NICK_EMOJI_PER_SIDE){alert(`Максимум ${MAX_NICK_EMOJI_PER_SIDE} смайлика с этой стороны`);return;}
+    const newList=[...list,emojiId];
+    setList(newList);
+    setUserData(prev=>({...prev,[field]:newList}));
+    await db.collection('users').doc(user.uid).update({[field]:newList});
+  };
+  // Remove one specific emoji from a position
+  const detachNickEmoji=async(emojiId,position)=>{
+    if(position==='avatar'){
+      setNickEmojiAvatar(null);
+      setUserData(prev=>({...prev,nickEmojiAvatar:null}));
+      await db.collection('users').doc(user.uid).update({nickEmojiAvatar:null});
+      return;
+    }
+    const list=position==='front'?nickEmojiFront:nickEmojiBack;
+    const setList=position==='front'?setNickEmojiFront:setNickEmojiBack;
+    const field=position==='front'?'nickEmojiFront':'nickEmojiBack';
+    const newList=list.filter(id=>id!==emojiId);
+    setList(newList);
+    setUserData(prev=>({...prev,[field]:newList}));
+    await db.collection('users').doc(user.uid).update({[field]:newList});
+  };
+  // Remove an emoji from ALL nick positions at once (used when its uses run out)
+  const detachEmojiEverywhere=async(emojiId)=>{
+    const newFront=nickEmojiFront.filter(id=>id!==emojiId);
+    const newBack=nickEmojiBack.filter(id=>id!==emojiId);
+    const newAvatar=nickEmojiAvatar===emojiId?null:nickEmojiAvatar;
+    setNickEmojiFront(newFront);
+    setNickEmojiBack(newBack);
+    setNickEmojiAvatar(newAvatar);
+    setUserData(prev=>({...prev,nickEmojiFront:newFront,nickEmojiBack:newBack,nickEmojiAvatar:newAvatar}));
+    await db.collection('users').doc(user.uid).update({nickEmojiFront:newFront,nickEmojiBack:newBack,nickEmojiAvatar:newAvatar}).catch(()=>{});
+  };
+  // Track analytics opens for secret emoji
+  const analyticsOpenCount=useRef(parseInt(localStorage.getItem('analyticsOpens')||'0'));
+  const trackAnalyticsOpen=()=>{
+    analyticsOpenCount.current++;
+    localStorage.setItem('analyticsOpens',analyticsOpenCount.current);
+    if(analyticsOpenCount.current>=15&&!inventory.includes('emoji_chart')){
+      const newInv=[...inventory,'emoji_chart'];
+      setInventory(newInv);
+      db.collection('users').doc(user.uid).update({inventory:newInv});
+      alert('🎉 Разблокирован смайлик 📊 Аналитик!');
+    }
+  };
+
+  // ===== SAVE SETTINGS PER ACCOUNT to Firestore =====
+  const saveSettingsToAccount=async(settings)=>{
+    if(!user)return;
+    await db.collection('users').doc(user.uid).update({settings}).catch(()=>{});
+  };
+  // Load settings when user logs in - covers ALL settings fields
+  // IMPORTANT: reset to defaults the moment the account changes (even before userData loads),
+  // to avoid showing the previous account's settings during the brief gap.
+  const settingsLoadedForUid=useRef(null);
+  useEffect(()=>{
+    setLang('ru');setThemeMode('light');setFont('standard');setScale(1);
+    setAnimations('on');setPhoneMode(false);setAccentColor('blue');setBgTint('off');
+    setCustomAccent('');setShowBeta(true);setGridRows(3);setGridCols(4);
+    setFavGames({});setNotifyOnline({});setNotifyMsg({});
+    settingsLoadedForUid.current=null; // allow re-load for the new account
+  },[user?.uid]);
+
+  useEffect(()=>{
+    if(!userData||!user)return;
+    // Only load settings ONCE per account session - avoid re-applying on every
+    // Firestore document update (kdbucks/inventory changes also trigger userData updates)
+    if(settingsLoadedForUid.current===user.uid)return;
+    settingsLoadedForUid.current=user.uid;
+    const s=userData.settings||{};
+    setLang(s.lang||'ru');
+    setThemeMode(s.themeMode||'light');
+    setFont(s.font||'standard');
+    setScale(s.scale!==undefined?s.scale:1);
+    setAnimations(s.animations||'on');
+    setPhoneMode(s.phoneMode||false);
+    setAccentColor(s.accentColor||'blue');
+    setBgTint(s.bgTint||'off');
+    setCustomAccent(s.customAccent||'');
+    setShowBeta(s.showBeta!==undefined?s.showBeta:true);
+    setGridRows(s.gridRows||3);
+    setGridCols(s.gridCols||4);
+    setFavGames(userData.favGames||{});
+    setNotifyOnline(userData.notifyOnline||{});
+    setNotifyMsg(userData.notifyMsg||{});
+  },[user,userData]);
+
+  // Override applySettings to also save to Firestore (ALL fields)
+  const applySettingsAndSave=()=>{
+    setLang(tLang);setThemeMode(tTheme);setFont(tFont);setScale(tScale);
+    setAnimations(tAnims);setPhoneMode(tPhone);setAccentColor(tAccent);
+    setBgTint(tBgTint);setCustomAccent(tCustomAccent);
+    setGridRows(tGridRows);setGridCols(tGridCols);
+    setSettingsOpen(false);
+    saveSettingsToAccount({
+      lang:tLang,themeMode:tTheme,font:tFont,scale:tScale,
+      animations:tAnims,phoneMode:tPhone,accentColor:tAccent,
+      bgTint:tBgTint,customAccent:tCustomAccent,showBeta,
+      gridRows:tGridRows,gridCols:tGridCols
+    });
+    if(tFont==='cat'&&!inventory.includes('cat_smile')) unlockEmoji('cat_smile');
+    if(tFont==='bread'){
+      if(!inventory.includes('bread_plain')) unlockEmoji('bread_plain');
+      startBreadRain();
+    } else {
+      setBreadRain(false);
+      setBreadPieces([]);
+    }
+  };
+
+  // ===== TOGGLE FAVORITE GAME =====
+  const toggleFavGame=async(gameId)=>{
+    const nf={...favGames,[gameId]:!favGames[gameId]};
+    setFavGames(nf);
+    await db.collection('users').doc(user.uid).update({favGames:nf}).catch(()=>{});
+  };
+  const toggleNotifyOnline=async(uid)=>{
+    const nn={...notifyOnline,[uid]:!notifyOnline[uid]};
+    setNotifyOnline(nn);
+    await db.collection('users').doc(user.uid).update({notifyOnline:nn}).catch(()=>{});
+  };
+  const toggleNotifyMsg=async(uid)=>{
+    const nn={...notifyMsg,[uid]:!notifyMsg[uid]};
+    setNotifyMsg(nn);
+    await db.collection('users').doc(user.uid).update({notifyMsg:nn}).catch(()=>{});
+  };
+  // In-site toast for online/message notifications (instead of browser Notification API)
+  const [siteToast,setSiteToast]=useState(null);
+  useEffect(()=>{
+    if(!user||!users.length)return;
+    users.forEach(u=>{
+      if(u.uid===user.uid)return;
+      const wasOnline=wasOnlineRef.current[u.uid];
+      const nowOnline=isUserOnline(u);
+      if(notifyOnline[u.uid]&&!wasOnline&&nowOnline){
+        setSiteToast({text:`🟢 ${u.nickname||u.email} сейчас онлайн`,id:Date.now()});
+      }
+      wasOnlineRef.current[u.uid]=nowOnline;
+    });
+  },[users]);
+  useEffect(()=>{
+    if(!siteToast)return;
+    const t=setTimeout(()=>setSiteToast(null),4000);
+    return()=>clearTimeout(t);
+  },[siteToast]);
+
+  // ===== EDIT COMMENT =====
+  const saveEditComment=async()=>{
+    if(!editingComment)return;
+    const{id,gameId,text,stars}=editingComment;
+    if(!text.trim()||stars===0)return;
+    await db.collection('gameComments').doc(gameId).collection('comments').doc(id).update({text,stars});
+    setComments(prev=>({...prev,[gameId]:(prev[gameId]||[]).map(c=>c.id===id?{...c,text,stars}:c)}));
+    setEditingComment(null);
+  };
+
+  // ===== UNLOCK EMOJI =====
+  const unlockEmoji=async(emojiId)=>{
+    if(!user||inventory.includes(emojiId))return;
+    const newInv=[...inventory,emojiId];
+    setInventory(newInv);
+    const newStock={...emojiStock,[emojiId]:(emojiStock[emojiId]||0)+30};
+    setEmojiStock(newStock);
+    await db.collection('users').doc(user.uid).update({inventory:newInv,emojiStock:newStock});
+  };
+
+  // ===== MARKETPLACE =====
+  const NON_SELLABLE_EMOJIS=['red_clock']; // these can never be listed on the market
+  const listOnMarket=async(emojiId,price)=>{
+    if(!inventory.includes(emojiId)){alert('Нет в инвентаре');return;}
+    if(NON_SELLABLE_EMOJIS.includes(emojiId)){alert('Этот смайлик нельзя продавать');return;}
+    if(price<1){alert('Цена от 1 KDB');return;}
+    const item=EMOJI_CATALOG.find(e=>e.id===emojiId);
+    if(!window.confirm(`Выставить ${item?.emoji||''} за ${price} KDB? Пока лот активен, вы не сможете использовать этот смайлик.`))return;
+    await db.collection('market').add({emojiId,sellerId:user.uid,sellerNick:userData.nickname||'?',price:+price,listedAt:new Date().toISOString()});
+  };
+  const cancelMarketListing=async(listingId)=>{
+    if(!window.confirm('Снять лот с продажи?'))return;
+    await db.collection('market').doc(listingId).delete();
+  };
+  const buyFromMarket=async(listing)=>{
+    if(listing.sellerId===user.uid){alert('Нельзя купить своё');return;}
+    if(kdbucks<listing.price){alert('Недостаточно KDB');return;}
+    if(inventory.includes(listing.emojiId)){alert('Уже есть');return;}
+    await addKdbucks(-listing.price);
+    if(listing.sellerId!=='__system__'){
+      await db.collection('users').doc(listing.sellerId).update({kdbucks:firebase.firestore.FieldValue.increment(listing.price)});
+      const sd=await db.collection('users').doc(listing.sellerId).get();
+      const si=(sd.data()?.inventory||[]).filter(i=>i!==listing.emojiId);
+      await db.collection('users').doc(listing.sellerId).update({inventory:si});
+    }
+    await unlockEmoji(listing.emojiId);
+    await db.collection('market').doc(listing.id).delete();
+    addTransaction({type:'market_buy',label:'Куплен '+listing.emojiId,amount:-listing.price});
+    alert('✅ Смайлик получен!');
+  };
+  const giftEmoji=async(uid,emojiId)=>{
+    const d=await db.collection('users').doc(uid).get();
+    const inv=d.data()?.inventory||[];
+    if(!inv.includes(emojiId)) await db.collection('users').doc(uid).update({inventory:[...inv,emojiId]});
+    alert('Выдано!');
+  };
+
+  // ===== DAILY SYSTEM MARKET LISTINGS =====
+  useEffect(()=>{
+    if(!user)return;
+    (async()=>{
+      const ref=db.collection('settings').doc('marketSystem');
+      const doc=await ref.get();
+      const last=doc.data()?.lastGenerated?new Date(doc.data().lastGenerated):null;
+      if(last&&(Date.now()-last.getTime())<86400000)return;
+      // Remove old system listings, add new random ones
+      const oldSys=await db.collection('market').where('isSystem','==',true).get();
+      const batch=db.batch();
+      oldSys.docs.forEach(d=>batch.delete(d.ref));
+      await batch.commit();
+      const count=4+Math.floor(Math.random()*4);
+      for(let i=0;i<count;i++){
+        const item=pickRandomEmoji(true);
+        const price=item.rarity==='legendary'?80+Math.floor(Math.random()*60):item.rarity==='epic'?35+Math.floor(Math.random()*25):item.rarity==='rare'?12+Math.floor(Math.random()*15):3+Math.floor(Math.random()*10);
+        await db.collection('market').add({emojiId:item.id,sellerId:'__system__',sellerNick:'Система',price,isSystem:true,listedAt:new Date().toISOString()});
+      }
+      await ref.set({lastGenerated:new Date().toISOString()},{merge:true});
+    })();
+  },[user?.uid]);
+
+  // ===== CASES SYSTEM =====
+  const pickRandomEmoji=(excludeAdminOnly=true)=>{
+    const pool=EMOJI_CATALOG.filter(it=>!excludeAdminOnly||!it.how.includes('администратором'));
+    // weighted by rarity
+    const weighted=[];
+    pool.forEach(it=>{
+      const w=it.rarity==='legendary'?1:it.rarity==='epic'?4:it.rarity==='rare'?12:30;
+      for(let i=0;i<w;i++)weighted.push(it);
+    });
+    return weighted[Math.floor(Math.random()*weighted.length)];
+  };
+  // Beach chest only drops from the summer/beach set
+  const BEACH_EMOJI_IDS=['beach_umbrella','beach_sea','beach_sand','beach_shell','beach_sun','beach_cocktail','beach_tsunami'];
+  const pickBeachEmoji=()=>{
+    const pool=EMOJI_CATALOG.filter(it=>BEACH_EMOJI_IDS.includes(it.id));
+    const weighted=[];
+    pool.forEach(it=>{
+      const w=it.rarity==='epic'?3:20; // tsunami (epic) is rare, rest are common within this pool
+      for(let i=0;i<w;i++)weighted.push(it);
+    });
+    return weighted[Math.floor(Math.random()*weighted.length)];
+  };
+  const openCase=async(caseId,isImba)=>{
+    const idx=inventory.indexOf(caseId);
+    if(idx===-1)return;
+    // remove only ONE instance of this case (not all duplicates)
+    const newInv=[...inventory];
+    newInv.splice(idx,1);
+    setInventory(newInv);
+    await db.collection('users').doc(user.uid).update({inventory:newInv});
+    const isBeach=caseId==='case_beach';
+    // Determine result FIRST, then build a fixed strip that lands exactly on it
+    const result=isBeach?pickBeachEmoji():pickRandomEmoji(!isImba);
+    const strip=Array.from({length:29},()=>isBeach?pickBeachEmoji():pickRandomEmoji(!isImba));
+    strip.splice(24,0,result); // landing position near the end under the pointer
+    setCaseOpenAnim({caseId,spinning:true,result,strip});
+    setTimeout(async()=>{
+      const finalInv=[...newInv,result.id];
+      // Grant a random usage-pack size (15/30/60) when the emoji drops, instead of 0 stock
+      const packSizes=[15,30,60];
+      const grantedStock=result.id==='red_clock'?0:packSizes[Math.floor(Math.random()*packSizes.length)];
+      const newStock={...emojiStock,[result.id]:(emojiStock[result.id]||0)+grantedStock};
+      setInventory(finalInv);
+      setEmojiStock(newStock);
+      await db.collection('users').doc(user.uid).update({inventory:finalInv,emojiStock:newStock});
+      setCaseOpenAnim({caseId,spinning:false,result,strip,grantedStock});
+    },4600);
+  };
+
+  // Weekly reward popup - 4 options, pick 2
+  const generateWeeklyOptions=()=>{
+    if(isPremium){
+      // Premium guarantee: exactly 1 random case + 3 random emoji (with random use-pack sizes)
+      const opts=[];
+      const caseRoll=Math.random()*100;
+      opts.push(caseRoll<30
+        ?{type:'case',id:'case_imba',label:'🎁 Имбовый кейс',rarity:'legendary'}
+        :{type:'case',id:'case_normal',label:'📦 Смайл-кейс',rarity:'common'}
+      );
+      for(let i=0;i<3;i++){
+        const em=pickRandomEmoji(true);
+        opts.push({type:'emoji',id:em.id,label:em.emoji+' '+em.name,rarity:em.rarity});
+      }
+      // shuffle so the case isn't always in the same slot
+      return opts.sort(()=>Math.random()-.5);
+    }
+    const opts=[];
+    for(let i=0;i<4;i++){
+      const roll=Math.random()*100;
+      if(roll<15){
+        opts.push({type:'case',id:'case_imba',label:'🎁 Имбовый кейс',rarity:'legendary'});
+      } else if(roll<50){
+        opts.push({type:'case',id:'case_normal',label:'📦 Смайл-кейс',rarity:'common'});
+      } else {
+        const em=pickRandomEmoji(true);
+        opts.push({type:'emoji',id:em.id,label:em.emoji+' '+em.name,rarity:em.rarity});
+      }
+    }
+    return opts;
+  };
+  const checkWeeklyReward=async()=>{
+    if(!user||!userData)return;
+    const last=userData.lastWeeklyReward?new Date(userData.lastWeeklyReward):null;
+    if(last&&(Date.now()-last.getTime())<7*86400000)return;
+    setWeeklyOptions(generateWeeklyOptions());
+    setWeeklyPicked([]);
+    setWeeklyRewardModal(true);
+    await db.collection('users').doc(user.uid).update({lastWeeklyReward:new Date().toISOString()});
+  };
+  const pickWeeklyOption=(idx)=>{
+    if(weeklyPicked.includes(idx))return;
+    if(weeklyPicked.length>=2)return;
+    const np=[...weeklyPicked,idx];
+    setWeeklyPicked(np);
+    if(np.length===2){
+      setTimeout(async()=>{
+        const newInv=[...inventory];
+        const newStock={...emojiStock};
+        const packSizes=[15,30,60];
+        np.forEach(i=>{
+          const opt=weeklyOptions[i];
+          if(opt.type==='case'){
+            newInv.push(opt.id==='case_imba'?'case_imba':'case_normal');
+          } else {
+            newInv.push(opt.id);
+            const granted=packSizes[Math.floor(Math.random()*packSizes.length)];
+            newStock[opt.id]=(newStock[opt.id]||0)+granted;
+          }
+        });
+        setInventory(newInv);
+        setEmojiStock(newStock);
+        await db.collection('users').doc(user.uid).update({inventory:newInv,emojiStock:newStock});
+        setWeeklyRewardModal(false);
+      },900);
+    }
+  };
+  useEffect(()=>{if(user&&userData)checkWeeklyReward();},[user?.uid]);
+
+  // ===== BREAD RAIN =====
+  const breadEmojis=['🍞','🥖','🥐','🥨'];
+  const startBreadRain=()=>{
+    setBreadPieces(Array.from({length:10},(_,i)=>({id:i,emoji:breadEmojis[Math.floor(Math.random()*breadEmojis.length)],left:Math.random()*92,size:1.2+Math.random()*1,dur:4+Math.random()*5,delay:Math.random()*4})));
+    setBreadRain(true);
+  };
+  const splitBread=(id)=>{
+    setBreadPieces(prev=>prev.flatMap(p=>p.id!==id?[p]:[
+      {...p,id:id+'a',size:p.size*.55,left:p.left-3},
+      {...p,id:id+'b',size:p.size*.55,left:p.left+3}
+    ]));
+  };
+
+  // ===== ANALYTICS TRACKING =====
+  const analyticsOpens=useRef(parseInt(localStorage.getItem('analyticsOpens')||'0'));
+  const openGameInfo=(g)=>{
+    setInfoModal(g);
+    analyticsOpens.current++;
+    localStorage.setItem('analyticsOpens',analyticsOpens.current);
+    if(analyticsOpens.current>=15&&!inventory.includes('chart_emoji')){
+      unlockEmoji('chart_emoji');
+      setTimeout(()=>alert('🎉 Смайлик 📊 Аналитик разблокирован!'),300);
+    }
+  };
+
+  // ===== FIXED VOTE POLL (with re-vote support) =====
+  const votePollFixed=async(pollId,optIdx)=>{
+    const poll=polls.find(p=>p.id===pollId);
+    if(!poll)return;
+    const hasVoted=poll.votes&&poll.votes[user.uid]!==undefined;
+    const canChange=pollAllowChange[pollId];
+    if(hasVoted&&!canChange)return;
+    const newVotes={...poll.votes,[user.uid]:optIdx};
+    const np=polls.map(p=>p.id===pollId?{...p,votes:newVotes}:p);
+    await db.collection('settings').doc('global').set({polls:np},{merge:true});
+    setPolls(np);
+    if(!hasVoted){const r=poll.rewards[optIdx]||0;if(r>0&&poll.createdBy!==user.uid)await addKdbucks(r);}
+  };
+
+  // ===== SEND EMOJI IN CHAT (stock-based system) =====
+  const ownedEmojis=EMOJI_CATALOG.filter(s=>emojiStock[s.id]>0||(inventory.includes(s.id)&&s.id==='red_clock')).map(s=>s.emoji);
+  const [lastUsedEmojiId,setLastUsedEmojiId]=useState(null);
+  const PACK_MAX=60; // largest pack size, used as the ring's "full" reference
+  const renderEmojiStockButton=()=>{
+    const ownedItems=EMOJI_CATALOG.filter(s=>emojiStock[s.id]>0);
+    if(!ownedItems.length)return null;
+    const shown=ownedItems.find(s=>s.id===lastUsedEmojiId)||ownedItems[0];
+    const stock=emojiStock[shown.id]||0;
+    const pct=Math.max(0,Math.min(100,(stock/PACK_MAX)*100));
+    // ring goes green->full when stock high, fills with gray as it depletes
+    return e('button',{
+      className:'emoji-ring-btn',
+      title:`${shown.name}: осталось ${stock}`,
+      onClick:()=>setEmojiPickerOpen(p=>!p),
+      style:{background:`conic-gradient(#94a3b8 ${100-pct}%, transparent ${100-pct}%)`}
+    },
+      e('span',{className:'emoji-ring-inner'},shown.emoji)
+    );
+  };
+  const INFINITE_USE_EMOJIS=['red_clock']; // never deplete stock for these
+  const sendEmojiMsg=async(emoji)=>{
+    if(!chatUser&&!chatGroup)return;
+    const item=EMOJI_CATALOG.find(s=>s.emoji===emoji);
+    const infinite=item&&INFINITE_USE_EMOJIS.includes(item.id);
+    const remaining=item?emojiStock[item.id]||0:0;
+    if(item&&!infinite&&remaining<=0){
+      setChatSysMsg('⚠️ У вас закончились использования этого смайлика');
+      setTimeout(()=>setChatSysMsg(''),3000);
+      setEmojiPickerOpen(false);return;
+    }
+    setEmojiPickerOpen(false);
+    if(item){
+      setLastUsedEmojiId(item.id);
+      if(!infinite){
+        const newRemaining=remaining-1;
+        const newStock={...emojiStock,[item.id]:newRemaining};
+        setEmojiStock(newStock);
+        await db.collection('users').doc(user.uid).update({emojiStock:newStock}).catch(()=>{});
+        // Uses hit zero: remove the emoji from inventory entirely and detach it
+        // from the nickname/avatar wherever it was attached.
+        if(newRemaining<=0){
+          const newInv=inventory.filter(id=>id!==item.id);
+          setInventory(newInv);
+          await db.collection('users').doc(user.uid).update({inventory:newInv}).catch(()=>{});
+          await detachEmojiEverywhere(item.id);
+        }
+      }
+    }
+    if(chatUser){
+      const cid=[user.uid,chatUser.uid].sort().join('_');
+      const ref=db.collection('chats').doc(cid);
+      await ref.set({participants:[user.uid,chatUser.uid]},{merge:true});
+      await ref.collection('messages').add({text:emoji,sender:user.uid,timestamp:new Date().toISOString(),readBy:[user.uid],isEmoji:true});
+    } else if(chatGroup){
+      await db.collection('groups').doc(chatGroup.id).update({messages:firebase.firestore.FieldValue.arrayUnion({text:emoji,sender:user.uid,timestamp:new Date().toISOString(),isEmoji:true})});
+    }
+  };
+  // Buy a usage-pack for a specific emoji (small=15, normal=30, large=60)
+  const buyEmojiPack=async(emojiId,packSize)=>{
+    const price=packSize===15?5:packSize===30?9:15; // small/normal/large pricing
+    if(kdbucks<price){alert('Недостаточно KDB');return;}
+    if(!window.confirm(`Купить пакет на ${packSize} использований за ${price} KDB?`))return;
+    await addKdbucks(-price);
+    addTransaction({type:'shop',label:`Пакет ${packSize} исп. для смайлика`,amount:-price});
+    const newStock={...emojiStock,[emojiId]:(emojiStock[emojiId]||0)+packSize};
+    setEmojiStock(newStock);
+    await db.collection('users').doc(user.uid).update({emojiStock:newStock});
+  };
+
+    const saveEventGame=async()=>{
+      if(!isAdmin)return;
+      await db.collection('settings').doc('global').set({eventGameHtml:tEventHtml,eventTitle:tEventTitle,eventDesc:tEventDesc},{merge:true});
+      setEventEditModal(false);
+    };
+    const addBanner=async()=>{
     if(!newBannerText.trim()||banners.length>=3)return;
     const nb=[...banners,{text:newBannerText,color:newBannerColor,id:Date.now().toString()}];
     await db.collection('settings').doc('global').set({banners:nb},{merge:true});
@@ -1044,16 +2057,23 @@ function App(){
   // ===== GAME HELPERS =====
   const allBuiltin=BUILTIN.map(g=>{
     const ed=builtinEdits[g.id]||{};
-    return{...g,isBuiltin:true,author:'DeepSeek',authorPremium:true,publicVisible:!(ed.hidden===true),lastEdited:ed.lastEdited?.toDate?.()||null,playersCount:ed.playersCount||0,createdAt:new Date(2024,0,1),previewImageUrl:ed.previewImageUrl||null,description:ed.description||'',screenshots:ed.screenshots||[],title:ed.title||g.title,getHtml:(saved)=>ed.html?ed.html:g.fn(saved)};
+    return{...g,isBuiltin:true,author:'DeepSeek',authorPremium:true,publicVisible:!(ed.hidden===true),lastEdited:ed.lastEdited?.toDate?.()||null,playersCount:ed.playersCount||0,createdAt:new Date(2024,0,1),previewImageUrl:ed.previewImageUrl||null,description:ed.description||'',screenshots:ed.screenshots||[],title:ed.title||g.title,verified:!!ed.verified,getHtml:(saved)=>ed.html?ed.html:g.fn(saved)};
   });
-  const allCustom=customGames.map(g=>({...g,isBuiltin:false,authorPremium:users.find(u=>u.uid===g.authorId)?.premium||false,getHtml:()=>g.html||''}));
+  const allCustom=customGames.map(g=>({...g,isBuiltin:false,authorPremium:users.find(u=>u.uid===g.authorId)?.premium||false,verified:!!g.verified,getHtml:()=>g.html||''}));
   const allGames=[...allBuiltin,...allCustom];
+  // Event game injected as a virtual game if eventGame HTML is set
+  const eventGameObj=eventGameHtml&&eventGameHtml.trim()?{
+    id:'__event__',title:eventTitle||'Ивент',isBuiltin:false,isEvent:true,author:'Администрация',authorPremium:false,
+    publicVisible:true,lastEdited:null,playersCount:0,createdAt:new Date(),previewImageUrl:null,
+    description:eventDesc||'',screenshots:[],disableDownload:true,getHtml:()=>eventGameHtml
+  }:null;
 
   let display=allGames.filter(g=>{
     if(!g.publicVisible&&!isAdmin&&g.authorId!==user?.uid)return false;
     if(viewingUser)return g.authorId===viewingUser;
     if(filterType==='my')return g.authorId===user?.uid&&!g.isBuiltin;
     if(filterType==='premium')return g.authorPremium;
+    if(filterType==='favorites')return favGames[g.id];
     return true;
   });
   if(searchQ)display=display.filter(g=>g.title.toLowerCase().includes(searchQ.toLowerCase()));
@@ -1062,10 +2082,21 @@ function App(){
     if(sortType==='new')return(b.createdAt||0)-(a.createdAt||0);
     if(sortType==='old')return(a.createdAt||0)-(b.createdAt||0);
     if(sortType==='unpop')return(a.playersCount||0)-(b.playersCount||0);
+    if(sortType==='topRated')return getGameRating(b.id)-getGameRating(a.id);
+    if(sortType==='lowRated')return getGameRating(a.id)-getGameRating(b.id);
     return 0;
   });
+  // Pin event game to the very top (unless we're in favorites-only view and event isn't favorited)
+  if(eventGameObj&&filterType!=='favorites'&&filterType!=='my'&&!viewingUser&&!searchQ){
+    display=[eventGameObj,...display];
+  }
 
   const isUpdated=g=>{if(!g.lastEdited)return false;const s=lastSeen[g.id];if(!s)return true;return g.lastEdited>s;};
+
+  // ===== PAGINATION =====
+  const perPage=gridRows*gridCols;
+  const totalPages=Math.max(1,Math.ceil(display.length/perPage));
+  const pagedGames=display.slice(gamesPage*perPage,(gamesPage+1)*perPage);
 
   const addHistory=async(gid,gtitle)=>{
     setGameHistory(prev=>prev.find(i=>i.id===gid)?prev:[...prev,{id:gid,title:gtitle,firstPlayed:new Date().toISOString()}]);
@@ -1079,13 +2110,70 @@ function App(){
     }
   };
 
+  const [gameKeys,setGameKeys]=useState({}); // {gameId: true} - per account, owned access keys
+  const [buyAccessModal,setBuyAccessModal]=useState(null); // game pending purchase confirmation
+  // ===== PATCH NOTES (shown once per version) =====
+  const CURRENT_PATCH_VERSION='2026.06.21';
+  const PATCH_NOTES=[
+    '🟢 Онлайн-статус друзей в чате',
+    '🔔 Уведомления о входе в сеть и сообщениях',
+    '📦 Пакеты использования смайликов (15/30/60)',
+    '🔑 Платный доступ к играм за KD Bucks',
+    '🚫 Запрет скачивания для отдельных игр'
+  ];
+  const [showPatchNotes,setShowPatchNotes]=useState(false);
+  const [patchNotesDots,setPatchNotesDots]=useState([]);
+  useEffect(()=>{
+    if(!userData)return;
+    if(userData.seenPatchVersion!==CURRENT_PATCH_VERSION){
+      const dots=Array.from({length:18},()=>({
+        dx:(Math.random()-0.5)*2*window.innerWidth+'px',
+        dy:(Math.random()-0.5)*2*window.innerHeight+'px',
+        startX:Math.random()*100+'vw',
+        startY:Math.random()*100+'vh'
+      }));
+      setPatchNotesDots(dots);
+      setShowPatchNotes(true);
+    }
+  },[userData?.email]);
+  const closePatchNotes=async()=>{
+    setShowPatchNotes(false);
+    if(user)await db.collection('users').doc(user.uid).update({seenPatchVersion:CURRENT_PATCH_VERSION}).catch(()=>{});
+  };
   const openGame=async g=>{
+    // Paid access check
+    if(g.price>0&&!isAdmin&&!gameKeys[g.id]&&g.authorId!==user.uid){
+      setBuyAccessModal(g);
+      return;
+    }
     const ex=openGames.find(x=>x.gameId===g.id);
     if(ex){setActiveGame(ex.id);setCardPreviewModal(null);return;}
     await addHistory(g.id,g.title);
     const html=g.getHtml(gameProgress[g.id]||null);
     const ng={id:Date.now().toString(),title:g.title,gameId:g.id,html,getHtml:g.getHtml};
     setOpenGames(prev=>[...prev,ng]);setActiveGame(ng.id);setCardPreviewModal(null);
+  };
+  const buyGameAccess=async(g)=>{
+    if(kdbucks<g.price){alert('Недостаточно KD Bucks. Нужно: '+g.price);return;}
+    await addKdbucks(-g.price);
+    const newKeys={...gameKeys,[g.id]:true};
+    setGameKeys(newKeys);
+    await db.collection('users').doc(user.uid).update({gameKeys:newKeys});
+    addTransaction({type:'game_key',label:'Доступ к игре: '+g.title,amount:-g.price});
+    // Pay the game author and record a transaction visible to them
+    if(g.authorId&&g.authorId!==user.uid){
+      await db.collection('users').doc(g.authorId).update({kdbucks:firebase.firestore.FieldValue.increment(g.price)});
+      await db.collection('users').doc(g.authorId).collection('transactions').add({
+        type:'game_sold',
+        label:`Покупка игры «${g.title}»`,
+        buyerNick:userData.nickname||user.email,
+        buyerUid:user.uid,
+        amount:g.price,
+        date:new Date().toISOString()
+      });
+    }
+    setBuyAccessModal(null);
+    openGame(g);
   };
   const closeTab=id=>{
     const rem=openGames.filter(g=>g.id!==id);
@@ -1099,10 +2187,11 @@ function App(){
     await db.collection('users').doc(user.uid).update({lastGameCreated:new Date()});
     setUserData(prev=>({...prev,lastGameCreated:new Date()}));
   };
-  const openEdit=g=>{setEditModal(g);setEditTitle(g.title);setEditHtml(g.html||g.getHtml(null)||'');setEditPreview(g.previewImageUrl||'');setEditDesc(g.description||'');setEditScr(g.screenshots||[]);};
+  const openEdit=g=>{setEditModal(g);setEditTitle(g.title);setEditHtml(g.html||g.getHtml(null)||'');setEditPreview(g.previewImageUrl||'');setEditDesc(g.description||'');setEditScr(g.screenshots||[]);setEditDisableDownload(!!g.disableDownload);setEditPrice(g.price||0);};
   const saveEdit=async()=>{
     if(!editModal)return;
-    const data={title:editTitle,html:editHtml,lastEdited:new Date(),previewImageUrl:editPreview||null,description:editDesc,screenshots:editScr.slice(0,5)};
+    if(hasEmoji(editTitle)&&!isAdmin){alert('Нельзя использовать смайлики в названии игры');return;}
+    const data={title:editTitle,html:editHtml,lastEdited:new Date(),previewImageUrl:editPreview||null,description:editDesc,screenshots:editScr.slice(0,5),disableDownload:editDisableDownload,price:Math.max(0,parseInt(editPrice)||0)};
     if(editModal.isBuiltin)await db.collection('builtinEdits').doc(editModal.id).set(data,{merge:true});
     else await db.collection('games').doc(editModal.id).update(data);
     setEditModal(null);
@@ -1111,6 +2200,11 @@ function App(){
   const toggleVis=async g=>{
     if(!g.isBuiltin)await db.collection('games').doc(g.id).update({publicVisible:!g.publicVisible});
     else if(isAdmin){const r=db.collection('builtinEdits').doc(g.id);const c=await r.get();await r.set({hidden:!(c.data()?.hidden)},{merge:true});}
+  };
+  const toggleVerified=async g=>{
+    if(!isAdmin)return;
+    if(!g.isBuiltin)await db.collection('games').doc(g.id).update({verified:!g.verified});
+    else{const r=db.collection('builtinEdits').doc(g.id);const c=await r.get();await r.set({verified:!(c.data()?.verified)},{merge:true});}
   };
   const downloadGame=g=>{
     const html=g.getHtml(gameProgress[g.id]||null);
@@ -1199,15 +2293,19 @@ function App(){
   if(adminFilter==='muted')adminUsers=adminUsers.filter(u=>u.muteUntil&&new Date(u.muteUntil)>new Date());
 
   // ===== LOADING =====
+  if(loadError){
+    return e('div',{className:'loading',style:{display:'flex',flexDirection:'column',alignItems:'center',gap:14,padding:30}},
+      e('div',{style:{fontSize:'2.4rem'}},'⚠️'),
+      e('div',{style:{color:'#ef4444',fontWeight:700,fontSize:'1.05rem',textAlign:'center'}},'Не удалось загрузить'),
+      e('div',{style:{color:'var(--text2)',fontSize:'.88rem',textAlign:'center',maxWidth:320}},'Проверьте интернет-соединение и попробуйте снова.'),
+      e('button',{onClick:()=>{setLoadError(false);setLoading(true);setRetryCount(c=>c+1);},style:{background:'var(--accent)',color:'#fff',border:'none',padding:'11px 28px',borderRadius:40,cursor:'pointer',fontWeight:700,fontSize:'.92rem'}},'🔄 Повторить попытку')
+    );
+  }
   if(loading)return e('div',{className:'loading'},'⏳ '+T.loading);
 
   // ===== AUTH PAGE =====
   if(!user){
     return e('div',{className:'app'},
-      showBeta&&e('div',{className:'beta-banner'},
-        '🚧 Бета-версия · Обновление: 1–10 августа 2026',
-        e('button',{onClick:()=>setShowBeta(false)},'✕')
-      ),
       banners.map(b=>e('div',{key:b.id,className:'beta-banner',style:{background:b.color==='orange'?'#f97316':b.color==='blue'?'#3b82f6':'#dc2626'}},b.text)),
       e('div',{className:'auth-wrap'},
         e('h2',null,authMode==='login'?T.login:T.register),
@@ -1251,11 +2349,7 @@ function App(){
 
   return e('div',{className:'app'},
 
-    // BANNERS
-    showBeta&&e('div',{className:'beta-banner'},
-      '🚧 Бета-версия · Большое обновление: 1–10 августа 2026',
-      e('button',{onClick:()=>{if(window.confirm('Выключить предупреждение?'))setShowBeta(false);}},'✕')
-    ),
+    // ADMIN BANNERS
     banners.map(b=>e('div',{key:b.id,className:'beta-banner',style:{background:b.color==='orange'?'#f97316':b.color==='blue'?'#3b82f6':'#dc2626',position:'relative'}},
       b.text
     )),
@@ -1271,6 +2365,7 @@ function App(){
             e('div',{style:{fontWeight:700,fontSize:'.88rem'}},'📊 Опрос'),
             e('div',{style:{display:'flex',alignItems:'center',gap:6}},
               e('span',{style:{fontSize:'.72rem',color:'var(--text2)'}},(totalVotes)+' голосов'),
+              e('button',{className:'admin-three-dots',onClick:()=>setPollSettingsModal(poll.id),title:'Настройки'},'✏️'),
               isAdmin&&e('button',{className:'admin-three-dots',onClick:()=>setPollResultsModal(poll)},'⋯')
             )
           ),
@@ -1279,7 +2374,7 @@ function App(){
             const pct=totalVotes?Math.round(voteCount/totalVotes*100):0;
             return e('div',{key:i,
               className:'poll-opt'+(myVote===i?' voted':''),
-              onClick:()=>!hasVoted&&votePoll(poll.id,i),
+              onClick:()=>votePollFixed(poll.id,i),
               style:{cursor:hasVoted?'default':'pointer'}
             },
               e('span',{style:{flex:1}},opt),
@@ -1302,8 +2397,8 @@ function App(){
       e('div',{className:'hdr-right'},
         e('button',{className:'icon-btn',title:'Тема',onClick:()=>{const m=['light','dark','system'];setThemeMode(prev=>m[(m.indexOf(prev)+1)%3]);}},themeMode==='dark'?'☀️':themeMode==='system'?'🖥️':'🌙'),
         e('button',{className:'acct-btn',onClick:()=>{loadUsers();setDrawerTab('profile');setDrawerOpen(true);}},
-          e(Av,{src:userData?.avatar,letter:(userData?.nickname?.[0]||user.email[0]).toUpperCase(),cls:'av-sm'}),
-          userData?.nickname||user.email.split('@')[0],
+          e(Av,{src:userData?.avatar,letter:(userData?.nickname?.[0]||user.email[0]).toUpperCase(),cls:'av-sm',stickerEmoji:nickEmojiAvatar?EMOJI_CATALOG.find(s=>s.id===nickEmojiAvatar)?.emoji:null}),
+          nickWithEmoji(userData?.nickname||user.email.split('@')[0]),
           isPremium&&e('span',{className:'badge-prem'},'⭐'),
           isAdmin&&e('span',{className:'badge-admin'},'Адм'),
           isMuted&&e('span',{className:'badge-muted'},'Мут'),
@@ -1317,46 +2412,61 @@ function App(){
 
     // SORT BAR
     e('div',{className:'sort-bar'},
-      [['popular',T.pop],['new',T.new],['old',T.old],['unpop',T.unpop]].map(([s,l])=>
+      [['popular',T.pop],['new',T.new],['old',T.old],['unpop',T.unpop],['topRated','⭐ Лучшие'],['lowRated','💩 Худшие']].map(([s,l])=>
         e('button',{key:s,className:'s-btn'+(sortType===s?' active':''),onClick:()=>setSortType(s)},l)
       )
     ),
 
-    // GAME GRID
-    e('main',{className:'grid'},
+    // GAME GRID — don't render live iframes while patch notes animation is playing
+    !showPatchNotes&&e('main',{className:'grid'},
       !display.length&&e('div',{className:'empty'},T.noGames),
-      display.map(g=>e('div',{
+      pagedGames.map((g,idx)=>e('div',{
         key:g.id,
-        className:'card'+(isUpdated(g)?' updated':''),
+        className:'card'+(isUpdated(g)?' updated':'')+(g.isEvent?' event-card':''),
         onClick:()=>setCardPreviewModal(g), // click opens preview modal first
-        onMouseDown:()=>{longPress.current=setTimeout(()=>setInfoModal(g),700);},
+        onMouseDown:()=>{longPress.current=setTimeout(()=>openGameInfo(g),700);},
         onMouseUp:()=>clearTimeout(longPress.current),
-        onTouchStart:()=>{longPress.current=setTimeout(()=>setInfoModal(g),700);},
+        onTouchStart:()=>{longPress.current=setTimeout(()=>openGameInfo(g),700);},
         onTouchEnd:()=>clearTimeout(longPress.current),
       },
         e('div',{className:'card-preview'},
-          g.previewImageUrl?e('img',{src:g.previewImageUrl,alt:g.title}):e('iframe',{srcDoc:g.getHtml(null),sandbox:'allow-scripts',title:g.title})
+          g.previewImageUrl
+            ?e('img',{src:g.previewImageUrl,alt:g.title})
+            // Lazy: only render live iframe for first 6 visible cards to avoid lag; rest show static icon
+            :(idx<6
+                ?e('iframe',{srcDoc:g.getHtml(null),sandbox:'allow-scripts',title:g.title,loading:'lazy'})
+                :e('div',{style:{fontSize:'2.4rem',display:'flex',alignItems:'center',justifyContent:'center',height:'100%',opacity:.5}},'🎮')
+              )
         ),
         e('div',{className:'card-body'},
-          e('div',{className:'card-title'},g.title),
+          e('div',{className:'card-title'},g.isEvent&&'🟣 ',g.title,' ',g.verified&&e('span',{title:'Проверено администрацией',style:{color:'#3b82f6'}},'✅')),
           e('div',{className:'card-acts',onClick:ev=>ev.stopPropagation()},
+            e('button',{title:favGames[g.id]?'В избранном':'В избранное',style:{color:favGames[g.id]?'#ef4444':''},onClick:()=>toggleFavGame(g.id)},favGames[g.id]?'❤️':'🤍'),
             e('button',{title:watchedGames[g.id]?'Уведомления вкл':'Уведомления',style:{color:watchedGames[g.id]?'#f97316':''},onClick:()=>toggleWatch(g.id)},watchedGames[g.id]?'🔔':'🔕'),
-            e('button',{title:'Скачать',onClick:()=>downloadGame(g)},'💾'),
-            (isAdmin||(!g.isBuiltin&&user.uid===g.authorId))&&e('button',{title:T.edit,onClick:()=>openEdit(g)},'✏️'),
-            (!g.isBuiltin&&(user.uid===g.authorId||isAdmin))&&e('button',{title:T.del,onClick:()=>setDeleteModal(g.id)},'🗑️'),
-            e('button',{title:'Видимость',onClick:()=>toggleVis(g)},g.publicVisible?'🌍':'🔒'),
-            e('button',{title:'Инфо',onClick:()=>setInfoModal(g)},'📊')
+            !g.disableDownload&&e('button',{title:'Скачать',onClick:()=>downloadGame(g)},'💾'),
+            (isAdmin||(!g.isBuiltin&&user.uid===g.authorId))&&!g.isEvent&&e('button',{title:T.edit,onClick:()=>openEdit(g)},'✏️'),
+            (!g.isBuiltin&&(user.uid===g.authorId||isAdmin))&&!g.isEvent&&e('button',{title:T.del,onClick:()=>setDeleteModal(g.id)},'🗑️'),
+            !g.isEvent&&e('button',{title:'Видимость',onClick:()=>toggleVis(g)},g.publicVisible?'🌍':'🔒'),
+            isAdmin&&!g.isEvent&&e('button',{title:g.verified?'Снять проверку':'Отметить проверенным',style:{color:g.verified?'#3b82f6':''},onClick:()=>toggleVerified(g)},'✅'),
+            e('button',{title:'Инфо',onClick:()=>openGameInfo(g)},'📊')
           ),
           e('div',{className:'card-meta'},
             '👤 ',g.author,' ',g.authorPremium&&e('span',{className:'badge-prem'},'⭐'),' 👥 ',g.playersCount||0,
-            !g.publicVisible&&e('span',{className:'priv-badge'},'Private')
+            !g.publicVisible&&e('span',{className:'priv-badge'},'Private'),
+            getGameRating(g.id)>0&&e('span',{style:{marginLeft:4,fontSize:'.68rem',color:'#f59e0b'}},`⭐${getGameRating(g.id).toFixed(1)}`)
           )
         )
-      ))
+      )),
+      totalPages>1&&e('div',{className:'load-more-btn',style:{display:'flex',gap:8,justifyContent:'center',flexWrap:'wrap'}},
+        e('button',{onClick:()=>setGamesPage(p=>Math.max(0,p-1)),disabled:gamesPage===0,style:{opacity:gamesPage===0?.4:1}},'← Назад'),
+        Array.from({length:totalPages},(_,i)=>e('button',{key:i,onClick:()=>setGamesPage(i),style:{background:gamesPage===i?'var(--accent)':'var(--btn)',color:gamesPage===i?'#fff':'var(--text)',minWidth:36}},i+1)),
+        e('button',{onClick:()=>setGamesPage(p=>Math.min(totalPages-1,p+1)),disabled:gamesPage>=totalPages-1,style:{opacity:gamesPage>=totalPages-1?.4:1}},'Вперёд →')
+      )
     ),
 
     e('button',{className:'fab',onClick:addGame},'+'),
-    e('button',{className:'settings-fab',title:T.settings,onClick:()=>{setTTheme(themeMode);setTLang(lang);setTFont(font);setTScale(scale);setTAnims(animations);setTPhone(phoneMode);setTAccent(accentColor);setTBgTint(bgTint);setTCustomAccent(customAccent);setSettingsOpen(true);}},'⚙️'),
+    e('button',{className:'settings-fab',title:T.settings,onClick:()=>{setTTheme(themeMode);setTLang(lang);setTFont(font);setTScale(scale);setTAnims(animations);setTPhone(phoneMode);setTAccent(accentColor);setTBgTint(bgTint);setTCustomAccent(customAccent);setTGridRows(gridRows);setTGridCols(gridCols);setSettingsOpen(true);}},'⚙️'),
+    kdbucks>0&&e('button',{style:{position:'fixed',bottom:18,right:76,background:'linear-gradient(135deg,#f59e0b,#f97316)',color:'#fff',border:'none',width:42,height:42,borderRadius:'50%',cursor:'pointer',fontSize:'1rem',zIndex:20,boxShadow:'0 4px 12px rgba(249,115,22,.4)',display:'flex',alignItems:'center',justifyContent:'center'},onClick:()=>setWalletOpen(true)},'🪙'),
 
     viewingUser&&e('div',{className:'view-banner'},
       `🎮 Игры: ${users.find(u=>u.uid===viewingUser)?.nickname||'игрока'}`,
@@ -1369,13 +2479,16 @@ function App(){
         e('h2',null,'📋 Меню'),
         e('div',{className:'menu-sec'},
           e('h3',null,'🎮 Игры'),
-          [['all',T.all],['my',T.my],['premium',T.prem]].map(([f,l])=>
+          [['all',T.all],['my',T.my],['premium',T.prem],['favorites','❤️ Избранные']].map(([f,l])=>
             e('div',{key:f,className:'menu-item'+(filterType===f?' act':''),onClick:()=>{setFilterType(f);setViewingUser(null);setMenuOpen(false);}},l)
           )
         ),
+        eventGameHtml&&e('div',{className:'menu-sec'},
+          e('div',{className:'menu-item',style:{background:'linear-gradient(135deg,#8b5cf6,#6366f1)',color:'#fff',borderColor:'#8b5cf6'},onClick:()=>{setMenuOpen(false);setCardPreviewModal({id:'__event__',title:eventTitle||'Ивент',isEvent:true,author:'Администрация',getHtml:()=>eventGameHtml,description:eventDesc||'',disableDownload:true,playersCount:0,authorPremium:false});}},'🟣 Ивентовая игра')
+        ),
         e('div',{className:'menu-sec'},
           e('h3',null,'🔃 Сортировка'),
-          [['popular',T.pop],['new',T.new],['old',T.old],['unpop',T.unpop]].map(([s,l])=>
+          [['popular',T.pop],['new',T.new],['old',T.old],['unpop',T.unpop],['topRated','⭐ Лучшие'],['lowRated','💩 Худшие']].map(([s,l])=>
             e('div',{key:s,className:'menu-item'+(sortType===s?' act':''),onClick:()=>{setSortType(s);setMenuOpen(false);}},l)
           )
         ),
@@ -1384,12 +2497,17 @@ function App(){
           [...gameHistory].reverse().slice(0,15).map(item=>{const g=allGames.find(x=>x.id===item.id);return g&&e('div',{key:item.id,className:'menu-item',onClick:()=>{setMenuOpen(false);setCardPreviewModal(g);}},`🕹️ ${g.title}`,e('span',{className:'hdate'},new Date(item.firstPlayed).toLocaleDateString()));})
         ),
         e('div',{className:'menu-sec'},
-          e('h3',null,'💰 Кошелёк'),
-          e('div',{className:'menu-item',onClick:()=>{setMenuOpen(false);setKdbModal(true);}},`🪙 KD Bucks: ${kdbucks}`),
+          e('h3',null,'💰 Кошелёк & Магазин'),
+          e('div',{className:'menu-item',onClick:()=>{setMenuOpen(false);setInventoryModalOpen(true);}},`🎒 Инвентарь`),
+          e('div',{className:'menu-item',onClick:()=>{setMenuOpen(false);setShopOpen(true);}},`🛒 Магазин эмодзи`),
+          e('div',{className:'menu-item',onClick:()=>{setMenuOpen(false);setWalletOpen(true);}},`🪙 KD Bucks: ${kdbucks}`),
           e('div',{className:'menu-item',onClick:()=>{setMenuOpen(false);setAchModal(true);}},`🏆 Достижения`)
         ),
+        isAdmin&&e('div',{className:'menu-sec'},
+          e('div',{className:'menu-item',onClick:()=>{setMenuOpen(false);setTEventHtml(eventGameHtml);setTEventTitle(eventTitle);setTEventDesc(eventDesc);setEventEditModal(true);}},'🟣 Изменить ивент')
+        ),
         e('div',{className:'menu-sec'},
-          e('div',{className:'menu-item',onClick:()=>{setMenuOpen(false);setTTheme(themeMode);setTLang(lang);setTFont(font);setTScale(scale);setTAnims(animations);setTPhone(phoneMode);setTAccent(accentColor);setTBgTint(bgTint);setTCustomAccent(customAccent);setSettingsOpen(true);}},T.settings)
+          e('div',{className:'menu-item',onClick:()=>{setMenuOpen(false);setTTheme(themeMode);setTLang(lang);setTFont(font);setTScale(scale);setTAnims(animations);setTPhone(phoneMode);setTAccent(accentColor);setTBgTint(bgTint);setTCustomAccent(customAccent);setTGridRows(gridRows);setTGridCols(gridCols);setSettingsOpen(true);}},T.settings)
         )
       )
     ),
@@ -1403,20 +2521,38 @@ function App(){
             e('div',{key:t,className:'drw-tab'+(drawerTab===t?' act':''),onClick:()=>{setDrawerTab(t);if(t==='chats'||t==='admin')loadUsers();}},{profile:T.profile,chats:T.chats,admin:T.admin}[t])
           )
         ),
-        e('div',{className:'drw-body'},
+        e('div',{className:'drw-body'+((chatUser||chatGroup)?' chat-mode':'')},
 
           // PROFILE TAB
           drawerTab==='profile'&&e('div',{className:'profile-ctr'},
-            e(Av,{src:userData?.avatar,letter:(userData?.nickname?.[0]||user.email[0]).toUpperCase(),cls:'av-lg',onClick:()=>userData?.avatar&&setFsAvatar(userData.avatar)}),
+            e(Av,{src:userData?.avatar,letter:(userData?.nickname?.[0]||user.email[0]).toUpperCase(),cls:'av-lg',onClick:()=>userData?.avatar&&setFsAvatar(userData.avatar),stickerEmoji:nickEmojiAvatar?EMOJI_CATALOG.find(s=>s.id===nickEmojiAvatar)?.emoji:null}),
             e('div',{className:'field-row'},e('input',{type:'text',placeholder:'URL аватара',value:avatarInput,onChange:ev=>setAvatarInput(ev.target.value)}),e('button',{className:'btn-sm',onClick:updateAvatar},'💾')),
             e('div',{className:'field-row'},e('input',{type:'text',placeholder:T.nick,value:newNickInput,onChange:ev=>setNewNickInput(ev.target.value)}),e('button',{className:'btn-sm',onClick:changeNick},'OK')),
-            e('div',{className:'nick-big'},userData?.nickname||user.email.split('@')[0],' ',isPremium&&e('span',{className:'badge-prem'},'⭐'),' ',isAdmin&&e('span',{className:'badge-admin'},'Адм')),
+            e('div',{className:'nick-big'},
+              nickWithEmoji(userData?.nickname||user.email.split('@')[0]),
+              ' ',isPremium&&e('span',{className:'badge-prem'},'⭐'),
+              ' ',isAdmin&&e('span',{className:'badge-admin'},'Адм')
+            ),
+            (nickEmojiFront.length>0||nickEmojiBack.length>0||nickEmojiAvatar)&&e('div',{style:{display:'flex',flexWrap:'wrap',gap:6,marginTop:4,justifyContent:'center'}},
+              nickEmojiFront.map(id=>{
+                const it=EMOJI_CATALOG.find(s=>s.id===id);
+                return it&&e('button',{key:'f'+id,onClick:()=>detachNickEmoji(id,'front'),style:{fontSize:'.72rem',background:'var(--btn)',color:'var(--text)',border:'none',padding:'4px 10px',borderRadius:12,cursor:'pointer'}},`${it.emoji} ✕`);
+              }),
+              nickEmojiBack.map(id=>{
+                const it=EMOJI_CATALOG.find(s=>s.id===id);
+                return it&&e('button',{key:'b'+id,onClick:()=>detachNickEmoji(id,'back'),style:{fontSize:'.72rem',background:'var(--btn)',color:'var(--text)',border:'none',padding:'4px 10px',borderRadius:12,cursor:'pointer'}},`${it.emoji} ✕`);
+              }),
+              nickEmojiAvatar&&(()=>{
+                const it=EMOJI_CATALOG.find(s=>s.id===nickEmojiAvatar);
+                return it&&e('button',{onClick:()=>detachNickEmoji(nickEmojiAvatar,'avatar'),style:{fontSize:'.72rem',background:'#8b5cf622',color:'#8b5cf6',border:'none',padding:'4px 10px',borderRadius:12,cursor:'pointer'}},`📷${it.emoji} ✕`);
+              })()
+            ),
             e('div',{className:'email-sm'},user.email),
             e('div',{className:'kdb-code',style:{marginTop:6}},`Код: ${uid8}`),
             e('div',{className:'cooldown-info'},fmt(cooldownMs)),
             e('div',{style:{display:'flex',gap:8,marginTop:8,width:'100%'}},
               e('button',{className:'btn-sm',style:{flex:1},onClick:()=>setAchModal(true)},'🏆 Достижения'),
-              e('button',{className:'btn-sm',style:{flex:1},onClick:()=>setKdbModal(true)},`🪙 ${kdbucks} KDB`)
+              e('button',{className:'btn-sm',style:{flex:1},onClick:()=>setWalletOpen(true)},`🪙 ${kdbucks} KDB`)
             ),
             e('button',{className:'logout-btn',onClick:()=>auth.signOut()},T.logout)
           ),
@@ -1440,7 +2576,7 @@ function App(){
                     onTouchEnd:()=>clearTimeout(longPress.current)
                   },
                     e('div',{className:'user-info',onClick:()=>openChat(u)},
-                      e(Av,{src:u.avatar,letter:(u.nickname?.[0]||'?').toUpperCase()}),
+                      e(Av,{src:u.avatar,letter:(u.nickname?.[0]||'?').toUpperCase(),online:isUserOnline(u)}),
                       e('div',null,
                         e('div',{style:{fontSize:'.85rem',fontWeight:500}},u.nickname||u.email,' ',u.premium&&'⭐',' ',u.isAdmin&&'👑'),
                       ),
@@ -1457,7 +2593,10 @@ function App(){
               e('button',{className:'btn-save',style:{marginTop:10,width:'100%'},onClick:()=>{openGroupChat(groupMembers);setGroupMembers(null);}},'💬 Чат группы')
             ),
             (chatUser||chatGroup)&&e('div',{className:'chat-area'},
-              e('button',{className:'back-btn',onClick:()=>{if(chatUnsub.current)chatUnsub.current();setChatUser(null);setChatGroup(null);}},T.back),
+              e('div',{className:'back-btn-row'},
+                e('button',{className:'back-btn',onClick:()=>{if(chatUnsub.current)chatUnsub.current();setChatUser(null);setChatGroup(null);setChatFullscreen(false);}},T.back),
+                e('button',{className:'chat-fs-btn',title:'На весь экран',onClick:()=>setChatFullscreen(true)},'⛶')
+              ),
               chatSysMsg&&e('div',{className:'sys-msg'},chatSysMsg),
               e('div',{className:'messages'},
                 (chatUser?chatMsgs:groupMsgs).map((m,i)=>e('div',{key:m.id||i,className:'msg '+(m.sender===user.uid?'sent':'recv'),onContextMenu:ev=>{ev.preventDefault();ev.stopPropagation();setMsgCtx({x:Math.min(ev.clientX,window.innerWidth-160),y:ev.clientY,msg:m});}},
@@ -1466,9 +2605,20 @@ function App(){
                 )),
                 e('div',{ref:msgsEnd})
               ),
-              !isMuted&&e('div',{className:'chat-inp-row'},
-                e('input',{value:newMsg,onChange:ev=>setNewMsg(ev.target.value),onKeyPress:ev=>ev.key==='Enter'&&sendMsg(),placeholder:'Сообщение...'}),
-                e('button',{onClick:sendMsg},T.send)
+              !isMuted&&e('div',{style:{position:'relative',flexShrink:0}},
+                emojiPickerOpen&&ownedEmojis.length>0&&e('div',{className:'emoji-picker'},
+                  EMOJI_CATALOG.filter(s=>emojiStock[s.id]>0||(inventory.includes(s.id)&&s.id==='red_clock')).map(s=>
+                    e('div',{key:s.id,className:'ep-item',onClick:()=>sendEmojiMsg(s.emoji)},
+                      e('span',null,s.emoji),
+                      e('span',{className:'ep-count'},s.id==='red_clock'?'∞':emojiStock[s.id])
+                    )
+                  )
+                ),
+                e('div',{className:'chat-inp-row'},
+                  ownedEmojis.length>0&&renderEmojiStockButton(),
+                  e('input',{value:newMsg,onChange:ev=>setNewMsg(ev.target.value),onKeyPress:ev=>ev.key==='Enter'&&sendMsg(),placeholder:'Сообщение...'}),
+                  e('button',{onClick:sendMsg},T.send)
+                )
               ),
               isMuted&&e('div',{className:'sys-msg'},fmt(muteMs))
             )
@@ -1579,18 +2729,34 @@ function App(){
             )
           ),
           e('div',{className:'settings-sec'},
-            e('h3',null,T.font+' (🐱 кошачий = 10 KDB)'),
+            e('h3',null,T.font),
             e('div',{className:'opts-row'},
               e('div',{className:'opt'+(tFont==='standard'?' act':''),onClick:()=>setTFont('standard')},T.std),
-              e('div',{className:'opt'+(tFont==='cat'?' act':''),style:{fontFamily:'Comic Sans MS,cursive'},onClick:()=>{
-                if(tFont!=='cat'&&kdbucks<10&&!isPremium&&!isAdmin){alert('Нужно 10 KD Bucks!');return;}
-                setTFont(tFont==='cat'?'standard':'cat');
-              }},T.cat+((!isPremium&&!isAdmin)?' (10 KDB)':''))
+              e('div',{className:'opt'+(tFont==='cat'?' act':''),style:{fontFamily:'Comic Sans MS,cursive'},onClick:()=>setTFont(tFont==='cat'?'standard':'cat')},'🐱 Кошачий'),
+              e('div',{className:'opt'+(tFont==='bread'?' act':''),style:{fontFamily:'Georgia,serif'},onClick:()=>{
+                if(!inventory.includes('bread_plain')&&!isAdmin&&kdbucks<20){alert('Нужно 20 KDB или открыть достижение!');return;}
+                if(!inventory.includes('bread_plain')&&!isAdmin&&kdbucks>=20){
+                  if(window.confirm('Купить хлебный шрифт за 20 KDB?')){addKdbucks(-20);addTransaction({type:'shop',label:'Хлебный шрифт',amount:-20});}
+                  else return;
+                }
+                setTFont(tFont==='bread'?'standard':'bread');
+              }},'🍞 Хлебный'+(!inventory.includes('bread_plain')&&!isAdmin?' (20 KDB)':'')),
+              e('div',{className:'opt'+(tFont==='thin'?' act':''),style:{fontFamily:'Arial Narrow,sans-serif'},onClick:()=>setTFont(tFont==='thin'?'standard':'thin')},'📏 Тонкий'),
+              e('div',{className:'opt'+(tFont==='pixel'?' act':''),style:{fontFamily:'Courier New,monospace'},onClick:()=>setTFont(tFont==='pixel'?'standard':'pixel')},'🕹️ Пиксельный')
             )
           ),
           e('div',{className:'settings-sec'},
             e('h3',null,T.scale+': '+Math.round(tScale*100)+'%'),
             e('div',{className:'range-wrap'},e('input',{type:'range',min:.7,max:1.5,step:.05,value:tScale,onChange:ev=>setTScale(+ev.target.value)}),e('span',null,Math.round(tScale*100)+'%'))
+          ),
+          e('div',{className:'settings-sec'},
+            e('h3',null,'📐 Сетка игр: '+tGridRows+'×'+tGridCols+' ('+(tGridRows*tGridCols)+' на странице)'),
+            e('div',{style:{display:'flex',gap:6,marginBottom:8}},
+              [3,4].map(r=>e('div',{key:r,className:'opt'+(tGridRows===r?' act':''),onClick:()=>setTGridRows(r)},r+' ряда'))
+            ),
+            e('div',{className:'opts-row'},
+              [3,4,5,6,7,8].map(c=>e('div',{key:c,className:'opt'+(tGridCols===c?' act':''),onClick:()=>setTGridCols(c)},c+' кол.'))
+            )
           ),
           e('div',{className:'settings-sec'},
             e('div',{className:'toggle-row'},e('span',{className:'toggle-lbl'},'✨ '+T.anims),e('label',{className:'toggle'},e('input',{type:'checkbox',checked:tAnims==='on',onChange:ev=>setTAnims(ev.target.checked?'on':'off')}),e('span',{className:'tslider'})))
@@ -1602,30 +2768,12 @@ function App(){
             e('h3',null,'⭐ Премиум статус'),
             e('div',{style:{background:'linear-gradient(135deg,#fef3c7,#fde68a)',border:'1px solid #f59e0b',borderRadius:14,padding:'12px 14px'}},
               e('div',{style:{fontWeight:700,marginBottom:5,color:'#92400e'}},'⭐ Активировать Премиум'),
-              e('div',{style:{fontSize:'.8rem',color:'#78350f',marginBottom:10}},'• Еженедельно +10 KD Bucks\n• Кошачий шрифт бесплатно\n• Значок ⭐ у имени'),
-              e('button',{
-                onClick:async()=>{
-                  if(kdbucks<30){alert('Нужно 30 KD Bucks! У вас: '+kdbucks);return;}
-                  if(!window.confirm('Купить Премиум за 30 KDB?'))return;
-                  const newKdb=kdbucks-30;
-                  setKdbucks(newKdb);
-                  await db.collection('users').doc(user.uid).update({premium:true,kdbucks:newKdb});
-                  setUserData(prev=>({...prev,premium:true}));
-                  alert('⭐ Премиум активирован!');
-                  setSettingsOpen(false);
-                },
-                style:{background:'linear-gradient(135deg,#f59e0b,#f97316)',border:'none',color:'#fff',padding:'10px 20px',borderRadius:40,cursor:'pointer',fontWeight:700,width:'100%',fontSize:'.9rem'}
-              },`⭐ Купить за 30 KDB  (у вас: ${kdbucks})`)
+              e('div',{style:{fontSize:'.8rem',color:'#78350f',marginBottom:10,whiteSpace:'pre-line'}},'• Еженедельно +10 KD Bucks\n• 2 комментария в день (вместо 1)\n• Кошачий шрифт бесплатно\n• Значок ⭐'),
+              e('button',{onClick:()=>setPremiumBuyModal(true),style:{background:'linear-gradient(135deg,#f59e0b,#f97316)',border:'none',color:'#fff',padding:'10px 20px',borderRadius:40,cursor:'pointer',fontWeight:700,width:'100%',fontSize:'.9rem'}},`⭐ Купить за 30 KDB (у вас: ${kdbucks})`)
             )
           ),
           isPremium&&e('div',{className:'settings-sec'},
             e('div',{style:{background:'linear-gradient(135deg,#fef3c7,#fde68a)',border:'1px solid #f59e0b',borderRadius:14,padding:'10px 14px',textAlign:'center',fontWeight:700,color:'#92400e'}},'⭐ Премиум активен · Еженедельно +10 KDB')
-          ),
-          e('div',{className:'settings-sec'},
-            e('div',{className:'toggle-row'},
-              e('span',{className:'toggle-lbl'},'🚧 '+T.betaWarn),
-              e('label',{className:'toggle'},e('input',{type:'checkbox',checked:showBeta,onChange:ev=>{if(!ev.target.checked){if(window.confirm('Выключить предупреждение об обновлении?'))setShowBeta(false);}else setShowBeta(true)}}),e('span',{className:'tslider'}))
-            )
           ),
           e('div',{className:'settings-sec'},
             e('h3',null,'🎨 '+T.accentColor),
@@ -1649,7 +2797,7 @@ function App(){
             ),
             e('div',{style:{fontSize:'.72rem',color:'var(--text2)',marginTop:3}},'Фон и кнопки окрашиваются в тон акцента')
           ),
-          e('button',{className:'apply-btn',onClick:applySettings},T.apply)
+          e('button',{className:'apply-btn',onClick:applySettingsAndSave},T.apply)
         )
       )
     ),
@@ -1673,11 +2821,15 @@ function App(){
         ),
         cardPreviewModal.description&&e('div',{style:{fontSize:'.92rem',lineHeight:1.6,color:'var(--text)'}},cardPreviewModal.description),
         !cardPreviewModal.description&&e('div',{style:{fontSize:'.88rem',color:'var(--text2)',fontStyle:'italic'}},'Описание не добавлено'),
-        e('button',{className:'pm-play-btn',onClick:()=>openGame(cardPreviewModal)},'▶ Играть'),
+        e('button',{className:'pm-play-btn',onClick:()=>openGame(cardPreviewModal)},
+          (cardPreviewModal.price>0&&!isAdmin&&!gameKeys[cardPreviewModal.id]&&cardPreviewModal.authorId!==user.uid)
+            ?`🔑 Купить за ${cardPreviewModal.price} KDB`
+            :'▶ Играть'
+        ),
 
         // COMMENTS
         e('div',{className:'comments-section'},
-          e('div',{className:'comments-title'},'💬 Комментарии'),
+          e('div',{className:'comments-title'},'💬 Комментарии & Оценки'),
           (comments[cardPreviewModal.id]||[]).map(c=>
             e('div',{key:c.id,className:'comment-item',
               onContextMenu:ev=>{ev.preventDefault();ev.stopPropagation();setCommentCtx({x:Math.min(ev.clientX,window.innerWidth-160),y:ev.clientY,comment:c,gameId:cardPreviewModal.id});},
@@ -1687,15 +2839,28 @@ function App(){
               e(Av,{src:c.avatar,letter:(c.author?.[0]||'?').toUpperCase(),cls:'av-md'}),
               e('div',{className:'comment-body'},
                 e('div',{className:'comment-nick'},c.author),
+                c.stars>0&&e('div',{className:'star-display',style:{margin:'2px 0'}},
+                  [1,2,3,4,5].map(i=>e('span',{key:i,style:{fontSize:'.85rem'}},i<=c.stars?'⭐':'☆'))
+                ),
                 e('div',{className:'comment-text'},c.text),
                 e('div',{className:'comment-time'},c.timestamp?new Date(c.timestamp).toLocaleString():'')
               )
             )
           ),
-          (comments[cardPreviewModal.id]||[]).length===0&&e('div',{style:{fontSize:'.82rem',color:'var(--text2)',fontStyle:'italic'}},'Комментариев пока нет'),
+          (comments[cardPreviewModal.id]||[]).length===0&&e('div',{style:{fontSize:'.82rem',color:'var(--text2)',fontStyle:'italic',marginBottom:8}},'Комментариев пока нет'),
+          e('div',{style:{marginBottom:6}},
+            e('div',{style:{fontSize:'.82rem',color:'var(--text2)',marginBottom:4}},'Оцените игру (обязательно):'),
+            e('div',{className:'star-rating'},
+              [1,2,3,4,5].map(i=>e('span',{key:i,
+                onMouseEnter:()=>setHoverStar(i),
+                onMouseLeave:()=>setHoverStar(0),
+                onClick:()=>setCommentStars(i)
+              },(hoverStar||commentStars)>=i?'⭐':'☆'))
+            )
+          ),
           e('div',{className:'comment-inp-row'},
-            e('input',{placeholder:'Написать комментарий...',value:commentInput,onChange:ev=>setCommentInput(ev.target.value),onKeyPress:ev=>ev.key==='Enter'&&sendComment(cardPreviewModal.id)}),
-            e('button',{onClick:()=>sendComment(cardPreviewModal.id)},'→')
+            e('input',{placeholder:commentStars===0?'Сначала поставьте оценку ↑':'Написать комментарий...',value:commentInput,onChange:ev=>setCommentInput(ev.target.value),onKeyPress:ev=>ev.key==='Enter'&&sendCommentWithStars(cardPreviewModal.id),disabled:commentStars===0,style:{opacity:commentStars===0?0.5:1}}),
+            e('button',{onClick:()=>sendCommentWithStars(cardPreviewModal.id),disabled:commentStars===0||!commentInput.trim(),style:{opacity:(commentStars===0||!commentInput.trim())?0.5:1}},'→')
           )
         )
       )
@@ -1746,6 +2911,15 @@ function App(){
           e('img',{src:s,alt:'',onClick:()=>setFsScr(s)}),
           e('button',{onClick:()=>setEditScr(prev=>prev.filter((_,j)=>j!==i))},'✕')
         ))),
+        e('div',{className:'toggle-row',style:{marginTop:10,padding:'8px 0',borderTop:'1px solid var(--border)'}},
+          e('span',{className:'toggle-lbl'},'🚫 Запретить скачивание игры'),
+          e('label',{className:'toggle'},e('input',{type:'checkbox',checked:editDisableDownload,onChange:ev=>setEditDisableDownload(ev.target.checked)}),e('span',{className:'tslider'}))
+        ),
+        e('div',{style:{marginTop:10}},
+          e('div',{style:{fontSize:'.82rem',marginBottom:4}},'💰 Платный доступ (0 = бесплатно)'),
+          e('input',{type:'number',min:0,placeholder:'Цена в KDB',value:editPrice,onChange:ev=>setEditPrice(ev.target.value)}),
+          e('div',{style:{fontSize:'.74rem',color:'var(--text2)'}},'Если поставить больше 0 — игрок платит один раз и получает ключ доступа в инвентарь навсегда. Изменение цены не отбирает доступ у тех кто уже купил.')
+        ),
         e('div',{className:'modal-acts'},
           e('button',{className:'btn-cancel',onClick:()=>setEditModal(null)},T.cancel),
           e('button',{className:'btn-save',onClick:saveEdit},T.save)
@@ -1780,23 +2954,7 @@ function App(){
     ),
 
     // KDBUCKS MODAL
-    kdbModal&&e('div',{className:'modal-bg',onClick:()=>setKdbModal(false)},
-      e('div',{className:'modal',onClick:ev=>ev.stopPropagation()},
-        e('h2',null,'🪙 KD Bucks'),
-        e('div',{className:'kdb-panel'},
-          e('div',{className:'kdb-amount'},kdbucks+' KDB'),
-          e('div',{className:'kdb-code'},`Ваш код: ${uid8}`)
-        ),
-        e('h3',{style:{margin:'12px 0 7px',fontSize:'.88rem'}},'Перевести KD Bucks'),
-        e('div',{className:'transfer-row'},
-          e('input',{placeholder:'Код получателя (8 символов)',value:transferTo,onChange:ev=>setTransferTo(ev.target.value)}),
-          e('input',{placeholder:'Сумма',type:'number',value:transferAmt,onChange:ev=>setTransferAmt(ev.target.value),style:{width:80,flexShrink:0}}),
-          e('button',{className:'btn-save',onClick:transferKdb},'→')
-        ),
-        e('p',{style:{fontSize:'.75rem',color:'var(--text2)',marginTop:7}},'Зарабатывайте через достижения. Введите первые 8 символов кода получателя.'),
-        e('div',{className:'modal-acts'},e('button',{className:'btn-cancel',onClick:()=>setKdbModal(false)},'Закрыть'))
-      )
-    ),
+    // KDBUCKS - now handled by walletOpen fullscreen
 
     // POLL MODAL (admin)
     pollModal&&isAdmin&&e('div',{className:'modal-bg',onClick:()=>setPollModal(false)},
@@ -1807,7 +2965,7 @@ function App(){
           e('input',{type:'text',placeholder:`Вариант ${i+1}`,value:opt,onChange:ev=>{const n=[...pollOptions];n[i]=ev.target.value;setPollOptions(n);},style:{flex:1,margin:0}}),
           e('input',{type:'number',placeholder:'KDB',value:pollRewards[i]||0,onChange:ev=>{const n=[...pollRewards];n[i]=+ev.target.value;setPollRewards(n);},style:{width:65,margin:0}})
         )),
-        pollOptions.length<6&&e('button',{className:'btn-sm',style:{marginBottom:8},onClick:()=>{setPollOptions(prev=>[...prev,'']);setPollRewards(prev=>[...prev,0]);}},'+ Добавить вариант'),
+        pollOptions.length<10&&e('button',{className:'btn-sm',style:{marginBottom:8},onClick:()=>{setPollOptions(prev=>[...prev,'']);setPollRewards(prev=>[...prev,0]);}},'+ Добавить вариант'),
         e('p',{style:{fontSize:'.78rem',color:'var(--text2)'}},`Итого стоимость: ${pollRewards.reduce((a,b)=>a+(+b||0),0)} KDB (у вас: ${kdbucks})`),
         e('div',{className:'modal-acts'},
           e('button',{className:'btn-cancel',onClick:()=>setPollModal(false)},T.cancel),
@@ -1821,9 +2979,10 @@ function App(){
     fsScr&&e('div',{className:'fs-scr',onClick:()=>setFsScr(null)},e('img',{src:fsScr,alt:''})),
 
     // COMMENT CONTEXT MENU
-    commentCtx&&e('div',{className:'ctx-menu',style:{top:commentCtx.y,left:commentCtx.x},onClick:ev=>ev.stopPropagation()},
+    commentCtx&&e('div',{className:'ctx-menu',style:{top:commentCtx.y,left:Math.min(commentCtx.x,window.innerWidth-170)},onClick:ev=>ev.stopPropagation()},
       e('div',{onClick:()=>{navigator.clipboard.writeText(commentCtx.comment.text||'');setCommentCtx(null);}},'📋 Скопировать'),
-      (commentCtx.comment.authorId===user.uid||isAdmin)&&e('div',{onClick:()=>deleteComment(commentCtx.gameId,commentCtx.comment.id)},'🗑️ Удалить')
+      (commentCtx.comment.authorId===user.uid)&&e('div',{onClick:()=>{setEditingComment({id:commentCtx.comment.id,gameId:commentCtx.gameId,text:commentCtx.comment.text,stars:commentCtx.comment.stars||0});setCommentCtx(null);}},'✏️ Изменить'),
+      (commentCtx.comment.authorId===user.uid||isAdmin)&&e('div',{onClick:()=>{deleteComment(commentCtx.gameId,commentCtx.comment.id);setCommentCtx(null);}},'🗑️ Удалить')
     ),
 
     // ADMIN USER PROFILE MODAL
@@ -1832,13 +2991,21 @@ function App(){
         e('button',{className:'pm-back',style:{position:'static'},onClick:()=>{setUserProfileModal(null);setUserProfileData(null);}},T.back),
         e(Av,{src:userProfileModal.avatar,letter:(userProfileModal.nickname?.[0]||'?').toUpperCase(),cls:'av-md'}),
         e('div',null,
-          e('div',{style:{fontWeight:700,fontSize:'.95rem'}},userProfileModal.nickname||'—'),
+          e('div',{style:{fontWeight:700,fontSize:'.95rem'}},'📊 Активность: ',userProfileModal.nickname||'—'),
           isAdmin&&e('div',{style:{fontSize:'.75rem',color:'var(--text2)'}},userProfileModal.email||'—')
         )
       ),
       e('div',{className:'user-profile-body'},
         !userProfileData&&e('div',{style:{textAlign:'center',padding:40,color:'var(--text2)'}},'⏳ Загрузка...'),
         userProfileData&&e('div',null,
+          // Game purchases (others buying their games)
+          userProfileData.gamesBought&&userProfileData.gamesBought.length>0&&e('div',null,
+            e('div',{style:{fontWeight:700,fontSize:'.9rem',marginBottom:8}},'💰 Покупки его игр'),
+            userProfileData.gamesBought.map((p,i)=>e('div',{key:i,className:'msg-preview'},
+              e('div',null,`«${p.gameTitle}» купил: ${p.buyerNick}`)
+            )),
+            e('div',{style:{height:14}})
+          ),
           // Recent chats
           e('div',{style:{fontWeight:700,fontSize:'.9rem',marginBottom:8}},'💬 Последние сообщения'),
           userProfileData.chats.length===0&&e('div',{style:{fontSize:'.82rem',color:'var(--text2)',marginBottom:12}},'Нет сообщений'),
@@ -1887,19 +3054,39 @@ function App(){
       )
     ),
 
+    // ===== PATCH NOTES ANIMATION (shown once per version) =====
+    showPatchNotes&&e('div',{className:'patch-notes-overlay dark'},
+      patchNotesDots.map((d,i)=>e('div',{key:i,className:'patch-dot',style:{left:d.startX,top:d.startY,'--dx':d.dx,'--dy':d.dy}})),
+      e('div',{className:'patch-core'}),
+      e('div',{className:'patch-rect'},
+        e('h2',null,'🎉 Что нового в обновлении'),
+        e('div',{className:'changes'},PATCH_NOTES.map((n,i)=>e('div',{key:i,style:{marginBottom:4}},n))),
+        e('button',{onClick:closePatchNotes},'Далее →')
+      )
+    ),
+
+    // SITE TOAST (in-app notification)
+    siteToast&&e('div',{className:'site-toast'},siteToast.text),
+
     // USER CTX MENU
-    userCtx&&e('div',{className:'ctx-menu',style:{top:userCtx.y,left:userCtx.x},onClick:ev=>ev.stopPropagation()},
-      e('div',{onClick:()=>{openChat(userCtx.u);setUserCtx(null);}},'💬 Написать'),
-      e('div',{onClick:()=>{toggleHide(userCtx.u.uid);setUserCtx(null);}},hidden[userCtx.u.uid]?'👁️ Показать':'🙈 Скрыть'),
-      e('div',{onClick:()=>{toggleFav(userCtx.u.uid);setUserCtx(null);}},favs[userCtx.u.uid]?'★ Убрать избр.':'☆ В избранное'),
-      e('div',{onClick:()=>{setViewingUser(userCtx.u.uid);setDrawerOpen(false);setUserCtx(null);}},`🎮 Игры игрока`),
-      isAdmin&&e('div',{onClick:()=>{openUserProfile(userCtx.u);setUserCtx(null);}},'👤 Профиль (Адм)')
+    userCtx&&e('div',{style:{position:'fixed',inset:0,zIndex:999},onClick:()=>setUserCtx(null)},
+      e('div',{className:'ctx-menu',style:{top:userCtx.y,left:userCtx.x},onClick:ev=>ev.stopPropagation(),onTouchStart:ev=>ev.stopPropagation()},
+        e('div',{onClick:()=>{openChat(userCtx.u);setUserCtx(null);}},'💬 Написать'),
+        e('div',{onClick:()=>{toggleHide(userCtx.u.uid);setUserCtx(null);}},hidden[userCtx.u.uid]?'👁️ Показать':'🙈 Скрыть'),
+        e('div',{onClick:()=>{toggleFav(userCtx.u.uid);setUserCtx(null);}},favs[userCtx.u.uid]?'★ Убрать избр.':'☆ В избранное'),
+        e('div',{onClick:()=>{setViewingUser(userCtx.u.uid);setDrawerOpen(false);setUserCtx(null);}},`🎮 Игры игрока`),
+        e('div',{onClick:()=>{toggleNotifyOnline(userCtx.u.uid);setUserCtx(null);}},notifyOnline[userCtx.u.uid]?'🔕 Не уведомлять (онлайн)':'🟢 Уведомить когда онлайн'),
+        e('div',{onClick:()=>{toggleNotifyMsg(userCtx.u.uid);setUserCtx(null);}},notifyMsg[userCtx.u.uid]?'🔕 Не уведомлять (сообщения)':'💬 Уведомить о сообщениях'),
+        isAdmin&&e('div',{onClick:()=>{openUserProfile(userCtx.u);setUserCtx(null);}},'👤 Профиль (Адм)')
+      )
     ),
 
     // MSG CTX MENU
-    msgCtx&&e('div',{className:'ctx-menu',style:{top:msgCtx.y,left:msgCtx.x},onClick:ev=>ev.stopPropagation()},
-      e('div',{onClick:()=>{navigator.clipboard.writeText(msgCtx.msg.text||'');setMsgCtx(null);}},'📋 Скопировать'),
-      e('div',{onClick:delMsg},'🗑️ Удалить')
+    msgCtx&&e('div',{style:{position:'fixed',inset:0,zIndex:999},onClick:()=>setMsgCtx(null)},
+      e('div',{className:'ctx-menu',style:{top:msgCtx.y,left:msgCtx.x},onClick:ev=>ev.stopPropagation(),onTouchStart:ev=>ev.stopPropagation()},
+        e('div',{onClick:()=>{navigator.clipboard.writeText(msgCtx.msg.text||'');setMsgCtx(null);}},'📋 Скопировать'),
+        e('div',{onClick:delMsg},'🗑️ Удалить')
+      )
     ),
 
     // AI CHAT
@@ -1933,18 +3120,716 @@ function App(){
       )
     ),
 
-    // FULLSCREEN GAMES
-    openGames.length>0&&e('div',{className:'fs-overlay'},
-      e('div',{className:'hover-zone',onMouseEnter:()=>{setFsHeader(true);if(fsHideTimer.current)clearTimeout(fsHideTimer.current);fsHideTimer.current=setTimeout(()=>setFsHeader(false),2500);}}),
-      e('div',{className:'fs-hdr'+(fsHeader?'':' hidden')},
+    // ===== WALLET FULLSCREEN =====
+    walletOpen&&e('div',{className:'wallet-fs'},
+      e('div',{className:'wallet-glow'}),
+      e('div',{className:'wallet-hdr'},
+        e('button',{className:'pm-back',style:{position:'static'},onClick:()=>setWalletOpen(false)},T.back),
+        e('h2',{style:{fontSize:'1rem',fontWeight:700}},'🪙 KD Bucks')
+      ),
+      e('div',{className:'wallet-body'},
+        e('div',{className:'wallet-card'},
+          e('div',{className:'wallet-code-label'},'КОД КАРТЫ'),
+          e('div',{style:{fontFamily:'monospace',fontSize:'1.1rem',letterSpacing:'.12em',fontWeight:700}},user.uid.slice(0,10)),
+          e('div',{className:'wallet-amount'},kdbucks+' KDB'),
+          e('div',{className:'wallet-user'},userData?.nickname||user.email,' · ',user.email)
+        ),
+        e('div',{className:'wallet-tabs'},
+          [['history','📋 История'],['send','📤 Отправить'],['receive','📥 Получить']].map(([t,l])=>
+            e('button',{key:t,className:'wallet-tab'+(walletTab===t?' act':''),onClick:()=>setWalletTab(t)},l)
+          )
+        ),
+        // HISTORY
+        walletTab==='history'&&e('div',null,
+          transactions.length===0&&e('div',{style:{textAlign:'center',color:'var(--text2)',padding:30}},'Нет операций'),
+          transactions.map(tx=>e('div',{key:tx.id,className:'tx-item'},
+            e('div',{className:'tx-icon'},{send_code:'📤',receive_code:'📥',code_cancel:'↩️',premium:'⭐',comment:'💬',achievement:'🏆',game_sold:'🛒',game_key:'🔑'}[tx.type]||'💰'),
+            e('div',{className:'tx-info'},
+              e('div',{className:'tx-title'},tx.label,tx.type==='game_sold'&&tx.buyerNick&&e('span',{style:{color:'var(--text2)',fontWeight:400}},' · купил: '+tx.buyerNick)),
+              e('div',{className:'tx-date'},new Date(tx.date).toLocaleString())
+            ),
+            tx.amount!==0&&e('div',{className:'tx-amt '+(tx.amount>0?'plus':'minus')},
+              (tx.amount>0?'+':'')+tx.amount+' KDB'
+            )
+          ))
+        ),
+        // SEND (generate code)
+        walletTab==='send'&&e('div',null,
+          xferCodeData&&!xferCodeData.used&&e('div',{className:'xfer-code-box'},
+            e('div',{style:{fontSize:'.8rem',color:'var(--text2)',marginBottom:4}},'Активный код'),
+            e('div',{className:'xfer-code-big'},xferCodeData.code),
+            e('div',{style:{fontSize:'.8rem',color:'var(--text2)',textAlign:'center'}},`Сумма: ${xferCodeData.amount} KDB`),
+            e('button',{onClick:deleteXferCode,style:{width:'100%',marginTop:10,background:'#dc2626',border:'none',color:'#fff',padding:'9px',borderRadius:12,cursor:'pointer',fontWeight:600}},'✕ Удалить код')
+          ),
+          !xferCodeData&&e('div',null,
+            e('div',{style:{fontSize:'.88rem',fontWeight:600,marginBottom:8}},'Создать код для перевода'),
+            e('div',{style:{fontSize:'.8rem',color:'var(--text2)',marginBottom:12}},'Сгенерируйте 6-значный код. Баксы спишутся сразу. Друг вводит код и получает баксы. Код действует пока его не используют или не удалят.'),
+            e('div',{style:{display:'flex',gap:8,marginBottom:10}},
+              e('input',{type:'number',placeholder:'Сумма KDB',value:myXferAmt,onChange:ev=>setMyXferAmt(ev.target.value),style:{flex:1,padding:'9px 12px',borderRadius:12,border:'1.5px solid var(--border)',background:'var(--bg)',color:'var(--text)',fontSize:'.9rem'}}),
+              e('button',{onClick:generateXferCode,style:{background:'var(--accent)',border:'none',color:'#fff',padding:'9px 16px',borderRadius:12,cursor:'pointer',fontWeight:700}},'Создать')
+            ),
+            e('div',{style:{fontSize:'.75rem',color:'var(--text2)'}},'У вас: '+kdbucks+' KDB')
+          )
+        ),
+        // RECEIVE (enter code)
+        walletTab==='receive'&&e('div',null,
+          e('div',{style:{fontSize:'.88rem',fontWeight:600,marginBottom:8}},'Ввести код'),
+          e('div',{style:{fontSize:'.8rem',color:'var(--text2)',marginBottom:12}},'Введите 6-значный код от друга чтобы получить KD Bucks.'),
+          e('div',{style:{display:'flex',gap:8}},
+            e('input',{placeholder:'XXXXXX',value:xferCodeInput,onChange:ev=>setXferCodeInput(ev.target.value.toUpperCase().slice(0,6)),style:{flex:1,padding:'9px 12px',borderRadius:12,border:'1.5px solid var(--accent)',background:'var(--bg)',color:'var(--text)',fontSize:'1.1rem',fontFamily:'monospace',letterSpacing:'.1em',textAlign:'center'}}),
+            e('button',{onClick:receiveByCode,disabled:xferLoading||xferCodeInput.length!==6,style:{background:'#22c55e',border:'none',color:'#fff',padding:'9px 16px',borderRadius:12,cursor:'pointer',fontWeight:700,opacity:(xferLoading||xferCodeInput.length!==6)?0.5:1}},xferLoading?'⏳':'Получить')
+          )
+        )
+      )
+    ),
+
+    // ===== PREMIUM BUY MODAL =====
+    // ===== BUY GAME ACCESS MODAL =====
+    buyAccessModal&&e('div',{className:'modal-bg',onClick:()=>setBuyAccessModal(null)},
+      e('div',{className:'modal',style:{textAlign:'center',maxWidth:380},onClick:ev=>ev.stopPropagation()},
+        e('div',{style:{fontSize:'2.2rem',marginBottom:8}},'🔑'),
+        e('h2',null,'Платный доступ'),
+        e('p',{style:{color:'var(--text2)',margin:'8px 0'}},`Игра «${buyAccessModal.title}» стоит ${buyAccessModal.price} KDB. После покупки ключ останется у вас навсегда, даже если цена изменится.`),
+        e('p',{style:{fontWeight:700,color:'#f59e0b'}},`У вас: ${kdbucks} KDB`),
+        e('div',{className:'modal-acts',style:{justifyContent:'center'}},
+          e('button',{className:'btn-cancel',onClick:()=>setBuyAccessModal(null)},T.cancel),
+          e('button',{className:'btn-save',onClick:()=>buyGameAccess(buyAccessModal),disabled:kdbucks<buyAccessModal.price,style:{opacity:kdbucks<buyAccessModal.price?.5:1}},`🔑 Купить за ${buyAccessModal.price}`)
+        )
+      )
+    ),
+
+    premiumBuyModal&&e('div',{className:'premium-buy-modal',onClick:()=>!premiumBuying&&setPremiumBuyModal(false)},
+      e('div',{className:'premium-buy-box',onClick:ev=>ev.stopPropagation()},
+        premiumBuying
+          ?e('div',{style:{padding:'30px 0'}},
+              e('div',{style:{fontSize:'3rem',textAlign:'center',marginBottom:12}},'⭐'),
+              e('div',{style:{textAlign:'center',fontWeight:700,fontSize:'1.1rem',color:'#f59e0b'}},'Активация премиума...'),
+              e('div',{style:{width:48,height:48,border:'4px solid #f59e0b',borderTopColor:'transparent',borderRadius:'50%',animation:'spin .8s linear infinite',margin:'20px auto'}}),
+              e('style',null,'@keyframes spin{to{transform:rotate(360deg)}}')
+            )
+          :e('div',null,
+              e('div',{style:{fontSize:'3rem',marginBottom:8}},'⭐'),
+              e('h2',{style:{marginBottom:8,fontSize:'1.1rem'}},'Активировать Премиум'),
+              e('div',{style:{fontSize:'.85rem',color:'var(--text2)',marginBottom:16,lineHeight:1.6}},
+                '• Еженедельно +10 KD Bucks\n• 2 комментария в день\n• Кошачий шрифт бесплатно\n• Значок ⭐ у имени'
+              ),
+              e('div',{style:{fontSize:'1rem',fontWeight:700,color:'#f59e0b',marginBottom:16}},`Стоимость: 30 KDB (у вас: ${kdbucks})`),
+              kdbucks<30&&e('div',{style:{color:'#ef4444',fontSize:'.82rem',marginBottom:10}},'Недостаточно KD Bucks. Зарабатывайте через достижения!'),
+              e('div',{style:{display:'flex',gap:8}},
+                e('button',{onClick:()=>setPremiumBuyModal(false),style:{flex:1,padding:'10px',borderRadius:40,border:'none',background:'var(--btn)',color:'var(--text)',cursor:'pointer',fontWeight:600}},T.cancel),
+                e('button',{onClick:buyPremium,disabled:kdbucks<30,style:{flex:1,padding:'10px',borderRadius:40,border:'none',background:'linear-gradient(135deg,#f59e0b,#f97316)',color:'#fff',cursor:'pointer',fontWeight:700,opacity:kdbucks<30?0.5:1}},'⭐ Купить')
+              )
+            )
+      )
+    ),
+
+    // ===== POLL SETTINGS MODAL =====
+    pollSettingsModal&&e('div',{className:'poll-settings-modal',onClick:()=>setPollSettingsModal(null)},
+      e('div',{className:'poll-settings-box',onClick:ev=>ev.stopPropagation()},
+        e('div',{style:{fontWeight:700,fontSize:'1rem',marginBottom:14}},'⚙️ Настройки опроса'),
+        e('div',{className:'toggle-row',style:{marginBottom:12}},
+          e('span',null,'🔄 Можно переголосовать'),
+          e('label',{className:'toggle'},
+            e('input',{type:'checkbox',checked:!!pollAllowChange[pollSettingsModal],onChange:ev=>setPollAllowChange(p=>({...p,[pollSettingsModal]:ev.target.checked}))}),
+            e('span',{className:'tslider'})
+          )
+        ),
+        e('div',{className:'toggle-row',style:{marginBottom:12}},
+          e('span',null,'☑️ Несколько ответов'),
+          e('label',{className:'toggle'},
+            e('input',{type:'checkbox',checked:!!pollMultiSelect[pollSettingsModal],onChange:ev=>setPollMultiSelect(p=>({...p,[pollSettingsModal]:ev.target.checked}))}),
+            e('span',{className:'tslider'})
+          )
+        ),
+        pollMultiSelect[pollSettingsModal]&&e('div',{style:{marginBottom:12}},
+          e('div',{style:{fontSize:'.85rem',marginBottom:6}},'Максимум ответов (2-6):'),
+          e('input',{type:'range',min:2,max:6,value:pollMaxSelect[pollSettingsModal]||2,onChange:ev=>setPollMaxSelect(p=>({...p,[pollSettingsModal]:+ev.target.value})),style:{width:'100%',accentColor:'var(--accent)'}}),
+          e('div',{style:{textAlign:'center',fontSize:'.88rem',fontWeight:700,color:'var(--accent)'}},pollMaxSelect[pollSettingsModal]||2)
+        ),
+        e('button',{onClick:()=>setPollSettingsModal(null),style:{width:'100%',padding:'10px',borderRadius:40,border:'none',background:'var(--accent)',color:'#fff',cursor:'pointer',fontWeight:700,marginTop:4}},'Готово')
+      )
+    ),
+
+    // ===== BREAD RAIN =====
+    breadRain&&e('div',{className:'bread-rain'},
+      breadPieces.map(p=>e('span',{
+        key:p.id,className:'bread-piece',
+        style:{left:p.left+'%',fontSize:p.size+'rem',animationDuration:p.dur+'s',animationDelay:p.delay+'s'},
+        onClick:()=>splitBread(p.id)
+      },p.emoji))
+    ),
+
+    // ===== CHAT FULLSCREEN OVERLAY =====
+    chatFullscreen&&(chatUser||chatGroup)&&e('div',{className:'chat-fs-overlay'},
+      e('div',{className:'chat-fs-hdr'},
+        e('button',{className:'back-btn',onClick:()=>setChatFullscreen(false)},'← Свернуть'),
+        e('div',{style:{fontWeight:700,fontSize:'.95rem'}},chatUser?(chatUser.nickname||chatUser.email):(chatGroup?.name||''))
+      ),
+      e('div',{className:'chat-fs-body'},
+        chatSysMsg&&e('div',{className:'sys-msg'},chatSysMsg),
+        e('div',{className:'messages'},
+          (chatUser?chatMsgs:groupMsgs).map((m,i)=>e('div',{key:m.id||i,className:'msg '+(m.sender===user.uid?'sent':'recv'),onContextMenu:ev=>{ev.preventDefault();ev.stopPropagation();setMsgCtx({x:Math.min(ev.clientX,window.innerWidth-160),y:ev.clientY,msg:m});}},
+            e('div',null,m.text),
+            e('div',{className:'msg-time'},m.timestamp?new Date(m.timestamp).toLocaleTimeString():'')
+          )),
+          e('div',{ref:msgsEnd})
+        ),
+        !isMuted&&e('div',{style:{position:'relative',flexShrink:0,paddingBottom:14}},
+          emojiPickerOpen&&ownedEmojis.length>0&&e('div',{className:'emoji-picker'},
+            EMOJI_CATALOG.filter(s=>emojiStock[s.id]>0||(inventory.includes(s.id)&&s.id==='red_clock')).map(s=>
+              e('div',{key:s.id,className:'ep-item',onClick:()=>sendEmojiMsg(s.emoji)},
+                e('span',null,s.emoji),
+                e('span',{className:'ep-count'},s.id==='red_clock'?'∞':emojiStock[s.id])
+              )
+            )
+          ),
+          e('div',{className:'chat-inp-row'},
+            ownedEmojis.length>0&&renderEmojiStockButton(),
+            e('input',{value:newMsg,onChange:ev=>setNewMsg(ev.target.value),onKeyPress:ev=>ev.key==='Enter'&&sendMsg(),placeholder:'Сообщение...'}),
+            e('button',{onClick:sendMsg},T.send)
+          )
+        ),
+        isMuted&&e('div',{className:'sys-msg'},fmt(muteMs))
+      )
+    ),
+
+    // ===== INVENTORY FULLSCREEN =====
+    inventoryModalOpen&&e('div',{className:'inv-fs'},
+      e('div',{className:'wallet-hdr'},
+        e('button',{className:'pm-back',style:{position:'static'},onClick:()=>setInventoryModalOpen(false)},T.back),
+        e('h2',{style:{fontSize:'1rem',fontWeight:700}},'🎒 Инвентарь')
+      ),
+      e('div',{className:'wallet-tabs',style:{padding:'0 16px 8px'}},
+        [['emojis','😊 Смайлики'],['cases','📦 Кейсы'],['keys','🔑 Ключи игр']].map(([t,l])=>
+          e('button',{key:t,className:'wallet-tab'+(invTab===t?' act':''),onClick:()=>setInvTab(t)},l)
+        )
+      ),
+      // EMOJIS TAB - 4 slots per page with prev/next navigation
+      invTab==='emojis'&&(()=>{
+        const ownedItems=EMOJI_CATALOG.filter(it=>inventory.includes(it.id));
+        return e('div',{style:{padding:'0 16px'}},
+          ownedItems.length===0&&e('div',{style:{textAlign:'center',color:'var(--text2)',padding:30}},'Пока нет смайликов в инвентаре'),
+          ownedItems.length>0&&e('div',{style:{fontSize:'.78rem',color:'var(--text2)',marginBottom:8,textAlign:'center'}},'Нажмите на смайлик чтобы прикрепить его к нику'),
+          ownedItems.length>0&&e('div',{className:'shop-grid'},
+            ownedItems.map(it=>{
+              const infinite=it.id==='red_clock';
+              return e('div',{key:it.id,className:'shop-item',style:{cursor:'pointer'},onClick:()=>setNickAttachChoice(it)},
+                e('div',{className:'emoji'},it.emoji),
+                e('div',{className:'name'},it.name),
+                e('div',{style:{fontSize:'.66rem',fontWeight:700,color:RARITY_COLORS[it.rarity]}},RARITY_NAMES[it.rarity]),
+                e('div',{style:{fontSize:'.7rem',color:'var(--text2)'}},infinite?'∞ Без ограничений':`Осталось: ${emojiStock[it.id]||0} исп.`)
+              );
+            })
+          )
+        );
+      })(),
+      // CASES TAB
+      invTab==='cases'&&e('div',{style:{padding:'0 16px'}},
+        inventory.filter(id=>id==='case_normal'||id==='case_imba'||id==='case_beach').length===0&&e('div',{style:{textAlign:'center',color:'var(--text2)',padding:30}},'Нет кейсов'),
+        e('div',{style:{display:'flex',flexWrap:'wrap',gap:10,justifyContent:'center'}},
+          inventory.filter(id=>id==='case_normal'||id==='case_imba'||id==='case_beach').map((id,i)=>
+            e('div',{key:id+i,className:'inv-key-card',style:{cursor:'pointer'},onClick:()=>{if(window.confirm('Открыть '+(id==='case_imba'?'имбовый ':id==='case_beach'?'пляжный ':'')+'кейс?'))openCase(id,id==='case_imba');}},
+              e('div',{className:'key-icon'},id==='case_imba'?'🎁':id==='case_beach'?'🏖️':'📦'),
+              e('div',{className:'key-name'},id==='case_imba'?'Имбовый кейс':id==='case_beach'?'Пляжный сундук':'Обычный кейс')
+            )
+          )
+        )
+      ),
+      // KEYS TAB
+      invTab==='keys'&&e('div',{style:{padding:'0 16px'}},
+        Object.keys(gameKeys).filter(k=>gameKeys[k]).length===0&&e('div',{style:{textAlign:'center',color:'var(--text2)',padding:30}},'Нет купленных ключей доступа'),
+        e('div',{style:{display:'flex',flexWrap:'wrap',gap:10,justifyContent:'center'}},
+          Object.keys(gameKeys).filter(k=>gameKeys[k]).map(gid=>{
+            const g=allGames.find(x=>x.id===gid);
+            return e('div',{key:gid,className:'inv-key-card'},
+              e('div',{className:'key-icon'},'🔑'),
+              e('div',{className:'key-name'},g?g.title:gid)
+            );
+          })
+        )
+      )
+    ),
+
+    // ===== SHOP FULLSCREEN =====
+    shopOpen&&e('div',{className:'shop-fs'},
+      e('div',{className:'wallet-hdr'},
+        e('button',{className:'pm-back',style:{position:'static'},onClick:()=>setShopOpen(false)},T.back),
+        e('h2',{style:{fontSize:'1rem',fontWeight:700}},'🛒 Магазин смайликов')
+      ),
+      e('div',{style:{padding:'0 16px 8px'}},
+        e('input',{type:'text',placeholder:'🔍 Поиск смайлика...',value:shopSearch,onChange:ev=>setShopSearch(ev.target.value),
+          style:{width:'100%',padding:'9px 14px',borderRadius:40,border:'1.5px solid var(--border)',background:'var(--bg)',color:'var(--text)',fontSize:'.9rem'}})
+      ),
+      e('div',{className:'wallet-tabs',style:{padding:'0 16px 8px'}},
+        [['catalog','📋 Каталог'],['cases','📦 Кейсы'],['market','🏪 Рынок'],['sell','💰 Продать']].map(([t,l])=>
+          e('button',{key:t,className:'wallet-tab'+(shopTab===t?' act':''),onClick:()=>setShopTab(t)},l)
+        )
+      ),
+      shopTab==='catalog'&&e('div',{className:'shop-grid'},
+        EMOJI_CATALOG.filter(item=>!shopSearch||item.name.toLowerCase().includes(shopSearch.toLowerCase())).map(item=>{
+          const owned=inventory.includes(item.id);
+          const stock=emojiStock[item.id]||0;
+          const listingsForThis=marketListings.filter(l=>l.emojiId===item.id);
+          return e('div',{key:item.id,className:'shop-item'+(owned?' owned':'')},
+            e('div',{className:'emoji'},item.emoji),
+            e('div',{className:'name'},item.name),
+            e('div',{style:{fontSize:'.66rem',fontWeight:700,color:RARITY_COLORS[item.rarity]}},RARITY_NAMES[item.rarity]),
+            e('div',{className:'price',style:{color:owned?'#22c55e':'#8b5cf6'}},owned?'✅ В инвентаре':`🔒 ${item.how}`),
+            isAdmin&&!owned&&e('button',{onClick:()=>unlockEmoji(item.id),style:{background:'#8b5cf6',color:'#fff',border:'none',padding:'5px 10px',borderRadius:14,cursor:'pointer',fontSize:'.75rem'}},'👑 Выдать себе'),
+            owned&&e('div',{style:{fontSize:'.7rem',color:'var(--text2)'}},`Осталось: ${stock} исп.`),
+            owned&&e('div',{style:{display:'flex',gap:3,flexWrap:'wrap',justifyContent:'center',marginTop:4}},
+              [[15,5,'Малый'],[30,9,'Обычный'],[60,15,'Большой']].map(([sz,price,label])=>
+                e('button',{key:sz,title:label+' пакет: '+sz+' исп.',onClick:()=>buyEmojiPack(item.id,sz),style:{fontSize:'.62rem',padding:'3px 6px',background:'var(--btn)',border:'none',borderRadius:8,cursor:'pointer',color:'var(--text)'}},`+${sz} (${price})`)
+              )
+            ),
+            listingsForThis.length>0&&e('button',{onClick:()=>{setMarketFilterEmoji(item.id);setShopTab('market');},style:{fontSize:'.68rem',padding:'4px 10px',background:'var(--accent)',color:'#fff',border:'none',borderRadius:12,cursor:'pointer',marginTop:4}},`🏪 ${listingsForThis.length} на рынке`)
+          );
+        })
+      ),
+      shopTab==='cases'&&e('div',{style:{padding:'0 16px'}},
+        e('div',{style:{fontSize:'.8rem',color:'var(--text2)',marginBottom:12}},'Покупай кейсы за KDB или получай еженедельно бесплатно. Каждый кейс — случайный смайлик по редкости.'),
+        e('div',{className:'shop-grid'},
+          e('div',{className:'shop-item'},
+            e('div',{className:'emoji'},'📦'),
+            e('div',{className:'name'},'Смайл-кейс'),
+            e('div',{style:{fontSize:'.7rem',color:'var(--text2)'}},'Обычные/редкие/эпик предметы'),
+            e('div',{className:'price'},'💰 15 KDB'),
+            e('button',{onClick:async()=>{
+              if(kdbucks<15){alert('Недостаточно KDB');return;}
+              await addKdbucks(-15);
+              addTransaction({type:'shop',label:'Покупка смайл-кейса',amount:-15});
+              const newInv=[...inventory,'case_normal'];
+              setInventory(newInv);
+              await db.collection('users').doc(user.uid).update({inventory:newInv});
+            }},'Купить')
+          ),
+          e('div',{className:'shop-item'},
+            e('div',{className:'emoji'},'🎁'),
+            e('div',{className:'name'},'Имбовый кейс'),
+            e('div',{style:{fontSize:'.7rem',color:'#f59e0b'}},'Высокий шанс эпик/легендарных'),
+            e('div',{className:'price'},'💰 50 KDB'),
+            e('button',{onClick:async()=>{
+              if(kdbucks<50){alert('Недостаточно KDB');return;}
+              await addKdbucks(-50);
+              addTransaction({type:'shop',label:'Покупка имбового кейса',amount:-50});
+              const newInv=[...inventory,'case_imba'];
+              setInventory(newInv);
+              await db.collection('users').doc(user.uid).update({inventory:newInv});
+            }},'Купить')
+          ),
+          e('div',{className:'shop-item'},
+            e('div',{className:'emoji'},'🏖️'),
+            e('div',{className:'name'},'Пляжный сундук'),
+            e('div',{style:{fontSize:'.7rem',color:'#06b6d4'}},'Только летние смайлики 🌊'),
+            e('div',{className:'price'},'💰 75 KDB'),
+            e('button',{onClick:async()=>{
+              if(kdbucks<75){alert('Недостаточно KDB');return;}
+              await addKdbucks(-75);
+              addTransaction({type:'shop',label:'Покупка пляжного сундука',amount:-75});
+              const newInv=[...inventory,'case_beach'];
+              setInventory(newInv);
+              await db.collection('users').doc(user.uid).update({inventory:newInv});
+            }},'Купить')
+          )
+        ),
+        e('div',{style:{marginTop:16}},
+          e('div',{style:{fontWeight:700,fontSize:'.88rem',marginBottom:8}},'🎒 Твои кейсы'),
+          inventory.filter(id=>id==='case_normal'||id==='case_imba'||id==='case_beach').length===0&&e('div',{style:{color:'var(--text2)',fontSize:'.82rem'}},'Нет кейсов в инвентаре'),
+          e('div',{style:{display:'flex',flexWrap:'wrap',gap:8}},
+            inventory.filter(id=>id==='case_normal'||id==='case_imba'||id==='case_beach').map((id,i)=>
+              e('div',{key:id+i,style:{background:'var(--bg)',border:'1px solid var(--border)',borderRadius:14,padding:'10px 14px',textAlign:'center',cursor:'pointer'},
+                onClick:()=>{if(window.confirm('Открыть '+(id==='case_imba'?'имбовый ':id==='case_beach'?'пляжный ':'')+'кейс?'))openCase(id,id==='case_imba');}
+              },e('div',{style:{fontSize:'1.8rem'}},id==='case_imba'?'🎁':id==='case_beach'?'🏖️':'📦'),e('div',{style:{fontSize:'.7rem',marginTop:4}},id==='case_imba'?'Имбовый':id==='case_beach'?'Пляжный':'Обычный'))
+            )
+          )
+        )
+      ),
+      shopTab==='market'&&e('div',{style:{padding:'0 16px'}},
+        marketFilterEmoji&&e('div',{style:{display:'flex',alignItems:'center',justifyContent:'space-between',background:'var(--accent)',color:'#fff',borderRadius:12,padding:'8px 12px',marginBottom:10,fontSize:'.82rem'}},
+          e('span',null,'Фильтр: '+(EMOJI_CATALOG.find(it=>it.id===marketFilterEmoji)?.emoji||'')+' '+(EMOJI_CATALOG.find(it=>it.id===marketFilterEmoji)?.name||'')),
+          e('button',{onClick:()=>setMarketFilterEmoji(null),style:{background:'rgba(255,255,255,.25)',border:'none',color:'#fff',borderRadius:10,padding:'3px 9px',cursor:'pointer'}},'✕ Сбросить')
+        ),
+        e('div',{style:{display:'flex',gap:6,marginBottom:10}},
+          [['cheap','💵 Сначала дешёвые'],['expensive','💎 Сначала дорогие']].map(([m,l])=>
+            e('button',{key:m,className:'wallet-tab'+(marketSort===m?' act':''),onClick:()=>setMarketSort(m)},l)
+          )
+        ),
+        marketListings.length===0&&e('div',{style:{textAlign:'center',padding:30,color:'var(--text2)'}},'Нет предложений'),
+        [...marketListings]
+          .filter(l=>!marketFilterEmoji||l.emojiId===marketFilterEmoji)
+          .filter(l=>!shopSearch||EMOJI_CATALOG.find(ec=>ec.id===l.emojiId)?.name.toLowerCase().includes(shopSearch.toLowerCase()))
+          .sort((a,b)=>marketSort==='expensive'?b.price-a.price:a.price-b.price)
+          .slice(0,marketShown)
+          .map(listing=>{
+          const item=EMOJI_CATALOG.find(ec=>ec.id===listing.emojiId);
+          if(!item)return null;
+          return e('div',{key:listing.id,className:'shop-item'+(listing.isSystem?' owned':'')},
+            listing.isSystem&&e('div',{style:{fontSize:'.62rem',color:'#3b82f6',fontWeight:700}},'🏛️ СИСТЕМА'),
+            e('div',{className:'emoji'},item.emoji),
+            e('div',{className:'name'},item.name),
+            e('div',{style:{fontSize:'.75rem',color:'var(--text2)'}},listing.isSystem?'Системное предложение':`от ${listing.sellerNick}`),
+            e('div',{className:'price',style:{color:'#f59e0b',fontWeight:700}},`💰 ${listing.price} KDB`),
+            e('button',{onClick:()=>buyFromMarket(listing),disabled:listing.sellerId===user.uid||kdbucks<listing.price,style:{opacity:(listing.sellerId===user.uid||kdbucks<listing.price)?0.5:1}},
+              listing.sellerId===user.uid?'Ваш лот':kdbucks<listing.price?'Мало KDB':'Купить'
+            )
+          );
+        }),
+        marketListings.length>marketShown&&e('div',{style:{textAlign:'center',padding:12}},
+          e('button',{onClick:()=>setMarketShown(p=>p+12),style:{background:'var(--btn)',border:'none',padding:'8px 18px',borderRadius:20,cursor:'pointer',fontWeight:600,color:'var(--text)'}},'Показать ещё')
+        )
+      ),
+      shopTab==='sell'&&e('div',{style:{padding:'0 16px'}},
+        inventory.length===0&&e('div',{style:{textAlign:'center',padding:30,color:'var(--text2)'}},'Нет смайликов для продажи'),
+        inventory.map(id=>{
+          const item=EMOJI_CATALOG.find(ec=>ec.id===id);
+          if(!item)return null;
+          const already=marketListings.find(l=>l.emojiId===id&&l.sellerId===user.uid);
+          const notSellable=NON_SELLABLE_EMOJIS.includes(id);
+          return e('div',{key:id,className:'shop-item'},
+            e('div',{className:'emoji'},item.emoji),
+            e('div',{className:'name'},item.name),
+            notSellable
+              ?e('div',{style:{fontSize:'.72rem',color:'var(--text2)'}},'🚫 Нельзя продать')
+              :already
+                ?e('div',{style:{display:'flex',flexDirection:'column',gap:4,width:'100%',alignItems:'center'}},
+                    e('div',{style:{fontSize:'.75rem',color:'#f59e0b'}},`На продаже за ${already.price} KDB`),
+                    e('button',{onClick:()=>cancelMarketListing(already.id),style:{background:'#dc2626',color:'#fff',fontSize:'.72rem'}},'✕ Снять с продажи')
+                  )
+                :e('div',{style:{display:'flex',gap:4,width:'100%'}},
+                    e('input',{id:'price-'+id,type:'number',placeholder:'Цена',min:1,max:99999,style:{flex:1,padding:'5px 8px',borderRadius:10,border:'1.5px solid var(--border)',background:'var(--bg)',color:'var(--text)',fontSize:'.82rem'}}),
+                    e('button',{onClick:()=>{const inp=document.getElementById('price-'+id);if(inp&&inp.value)listOnMarket(id,inp.value);}},'Продать')
+                  )
+          );
+        }),
+        isAdmin&&e('div',{style:{marginTop:16,borderTop:'1px solid var(--border)',paddingTop:12}},
+          e('div',{style:{fontWeight:700,fontSize:'.88rem',marginBottom:8}},'👑 Выдать смайлик игроку'),
+          e('div',{style:{display:'flex',gap:6,flexWrap:'wrap'}},
+            EMOJI_CATALOG.map(item=>
+              e('span',{key:item.id,style:{fontSize:'1.3rem',cursor:'pointer',padding:4,borderRadius:8,background:'var(--bg)',border:'1px solid var(--border)'},
+                title:item.name,onClick:async()=>{const uid=prompt('UID игрока:');if(uid)await giftEmoji(uid,item.id);}
+              },item.emoji)
+            )
+          )
+        )
+      )
+    ),
+
+    // ===== CASE OPENING MODAL =====
+    caseOpenAnim&&e('div',{className:'case-open-modal'},
+      caseOpenAnim.spinning
+        ?e('div',{style:{display:'flex',flexDirection:'column',alignItems:'center',gap:16}},
+            e('div',{style:{color:'#fff',fontSize:'1.1rem',fontWeight:700}},'🎰 Открытие кейса...'),
+            e('div',{className:'case-spinner-track'},
+              e('div',{className:'case-spinner-strip'},
+                caseOpenAnim.strip.map((it,i)=>
+                  e('div',{key:i,className:'case-spin-item',style:{borderColor:RARITY_COLORS[it.rarity]}},it.emoji)
+                )
+              )
+            )
+          )
+        :e('div',{style:{display:'flex',flexDirection:'column',alignItems:'center'}},
+            e('div',{className:'case-result-card',style:{borderColor:RARITY_COLORS[caseOpenAnim.result?.rarity]}},
+              e('div',{className:'case-result-emoji'},caseOpenAnim.result?.emoji),
+              e('div',{style:{fontWeight:700,fontSize:'1.1rem'}},caseOpenAnim.result?.name),
+              e('div',{style:{color:RARITY_COLORS[caseOpenAnim.result?.rarity],fontWeight:700,marginTop:4}},RARITY_NAMES[caseOpenAnim.result?.rarity]),
+              caseOpenAnim.grantedStock>0&&e('div',{style:{fontSize:'.82rem',color:'var(--text2)',marginTop:6}},`+${caseOpenAnim.grantedStock} использований`)
+            ),
+            e('button',{onClick:()=>setCaseOpenAnim(null),style:{marginTop:16,background:'var(--accent)',color:'#fff',border:'none',padding:'10px 24px',borderRadius:40,cursor:'pointer',fontWeight:700}},'Забрать')
+          )
+    ),
+
+    // ===== WEEKLY REWARD MODAL =====
+    weeklyRewardModal&&e('div',{className:'weekly-modal'},
+      e('div',{className:'weekly-box'},
+        e('div',{style:{fontSize:'2.4rem',marginBottom:6}},'🎉'),
+        e('h2',{style:{marginBottom:6}},'Еженедельная награда!'),
+        e('div',{style:{fontSize:'.85rem',color:'var(--text2)',marginBottom:4}},`Выберите 2 из 4 (выбрано: ${weeklyPicked.length}/2)`),
+        e('div',{className:'weekly-opts'},
+          weeklyOptions.map((opt,i)=>e('div',{key:i,className:'weekly-opt'+(weeklyPicked.includes(i)?' picked':''),onClick:()=>pickWeeklyOption(i)},
+            e('div',{className:'emoji'},opt.type==='case'?(opt.id==='case_imba'?'🎁':'📦'):opt.label.split(' ')[0]),
+            e('div',{style:{fontSize:'.8rem',fontWeight:600}},opt.type==='case'?opt.label:opt.label.split(' ').slice(1).join(' ')),
+            e('div',{style:{fontSize:'.7rem',color:RARITY_COLORS[opt.rarity],fontWeight:700,marginTop:4}},RARITY_NAMES[opt.rarity])
+          ))
+        )
+      )
+    ),
+
+    // ===== NICK EMOJI ATTACH CHOICE — FULLSCREEN CARD =====
+    nickAttachChoice&&(()=>{
+      const id=nickAttachChoice.id;
+      const onFront=nickEmojiFront.includes(id);
+      const onBack=nickEmojiBack.includes(id);
+      const onAvatar=nickEmojiAvatar===id;
+      return e('div',{className:'nick-attach-fs'},
+        e('button',{className:'pm-back',onClick:()=>setNickAttachChoice(null)},'← Назад'),
+        e('div',{className:'nick-attach-body'},
+          e('div',{className:'nick-attach-emoji'},nickAttachChoice.emoji),
+          e('h2',{style:{marginBottom:4}},nickAttachChoice.name),
+          e('div',{style:{fontSize:'.85rem',color:'var(--text2)',marginBottom:24}},'Куда прикрепить смайлик?'),
+          e('div',{className:'nick-attach-opts'},
+            e('button',{
+              className:'btn-save',
+              style:onFront?{background:'#dc2626'}:{},
+              onClick:()=>onFront?detachNickEmoji(id,'front'):attachNickEmoji(id,'front')
+            },onFront?`✕ Убрать спереди (${nickEmojiFront.length}/${MAX_NICK_EMOJI_PER_SIDE})`:`${nickAttachChoice.emoji} Спереди ник (${nickEmojiFront.length}/${MAX_NICK_EMOJI_PER_SIDE})`),
+            e('button',{
+              className:'btn-save',
+              style:onBack?{background:'#dc2626'}:{},
+              onClick:()=>onBack?detachNickEmoji(id,'back'):attachNickEmoji(id,'back')
+            },onBack?`✕ Убрать сзади (${nickEmojiBack.length}/${MAX_NICK_EMOJI_PER_SIDE})`:`Сзади ник ${nickAttachChoice.emoji} (${nickEmojiBack.length}/${MAX_NICK_EMOJI_PER_SIDE})`),
+            e('button',{
+              className:'btn-save',
+              style:onAvatar?{background:'#dc2626'}:{background:'#8b5cf6'},
+              onClick:()=>onAvatar?detachNickEmoji(id,'avatar'):attachNickEmoji(id,'avatar')
+            },onAvatar?'✕ Убрать с аватарки':`${nickAttachChoice.emoji} На аватарку (только 1)`)
+          )
+        )
+      );
+    })(),
+
+    // ===== EVENT GAME EDIT MODAL (admin) =====
+    eventEditModal&&isAdmin&&e('div',{className:'modal-bg',onClick:()=>setEventEditModal(false)},
+      e('div',{className:'modal',onClick:ev=>ev.stopPropagation(),style:{maxWidth:560}},
+        e('div',{style:{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}},
+          e('h2',null,'🟣 Изменить ивент'),
+          e('button',{onClick:()=>setEventInstructionsOpen(true),style:{background:'var(--btn)',border:'none',padding:'6px 12px',borderRadius:14,cursor:'pointer',fontSize:'.8rem'}},'📖 Инструкция')
+        ),
+        e('input',{type:'text',placeholder:'Название ивента',value:tEventTitle,onChange:ev=>setTEventTitle(ev.target.value)}),
+        e('textarea',{rows:2,placeholder:'Описание ивента',value:tEventDesc,onChange:ev=>setTEventDesc(ev.target.value)}),
+        e('textarea',{rows:10,placeholder:'HTML код ивента (оставьте пустым чтобы убрать ивент с сайта)',value:tEventHtml,onChange:ev=>setTEventHtml(ev.target.value),style:{fontFamily:'monospace',fontSize:'.78rem'}}),
+        e('div',{style:{fontSize:'.78rem',color:'var(--text2)',marginBottom:8}},'Если поле кода пустое — ивент-карточка не показывается на сайте.'),
+        e('div',{className:'modal-acts'},
+          e('button',{className:'btn-cancel',onClick:()=>setEventEditModal(false)},T.cancel),
+          e('button',{className:'btn-save',onClick:saveEventGame},T.save)
+        )
+      )
+    ),
+
+    // ===== EVENT INSTRUCTIONS FULLSCREEN =====
+    eventInstructionsOpen&&e('div',{className:'event-instructions-fs'},
+      e('div',{className:'wallet-hdr'},
+        e('button',{className:'pm-back',style:{position:'static'},onClick:()=>setEventInstructionsOpen(false)},T.back),
+        e('h2',{style:{fontSize:'1rem',fontWeight:700}},'📖 Инструкция по созданию ивента')
+      ),
+      e('div',{className:'content'},
+        e('p',null,'Ивент — это обычная HTML-страница, точно как игры на сайте. Она показывается ПЕРВОЙ карточкой всем, кроме фильтра «Избранное»/«Мои игры». Скачать её нельзя.'),
+
+        e('h3',null,'⭐ ШАГ 1. Скопируйте этот готовый шаблон целиком'),
+        e('p',null,'Это полностью рабочий пример. Вставьте его как есть в поле кода ивента, нажмите «Сохранить» — и сразу увидите как это работает. Дальше меняйте текст, цвета, логику под себя.'),
+        e('pre',null,
+`<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  body{margin:0;font-family:system-ui;background:#1e293b;color:#fff;
+       display:flex;flex-direction:column;align-items:center;
+       justify-content:center;height:100vh;text-align:center;}
+  h1{font-size:1.8rem;margin-bottom:10px;}
+  .timer{font-size:3rem;font-weight:900;color:#fbbf24;margin:20px 0;}
+  button{background:#3b82f6;color:#fff;border:none;padding:14px 32px;
+         border-radius:40px;font-size:1.1rem;cursor:pointer;margin-top:10px;}
+  button:disabled{background:#475569;cursor:default;}
+  .msg{margin-top:14px;font-size:.95rem;opacity:.8;}
+</style>
+</head>
+<body>
+  <h1>🎉 Летний ивент</h1>
+  <p>Сидите на странице — получайте KD Bucks каждую минуту</p>
+  <div class="timer" id="timer">00:00</div>
+  <button id="claimBtn" disabled>Собрать награду (ждите 60 сек)</button>
+  <div class="msg" id="msg"></div>
+
+${"<"}script>
+  let seconds = 0;
+  let canClaim = false;
+
+  // Таймер на странице — просто красивый счётчик
+  setInterval(() => {
+    seconds++;
+    const m = String(Math.floor(seconds/60)).padStart(2,'0');
+    const s = String(seconds%60).padStart(2,'0');
+    document.getElementById('timer').textContent = m+':'+s;
+
+    if (seconds % 60 === 0) {
+      canClaim = true;
+      document.getElementById('claimBtn').disabled = false;
+      document.getElementById('claimBtn').textContent = 'Собрать награду!';
+    }
+  }, 1000);
+
+  // Кнопка — игрок сам нажимает и получает KD Bucks
+  document.getElementById('claimBtn').onclick = () => {
+    if (!canClaim) return;
+    // Вот ГЛАВНАЯ строка — она отправляет команду сайту начислить деньги
+    window.parent.postMessage({
+      type: "eventReward",
+      amount: 3,                 // сколько KD Bucks дать
+      reason: "Минута на ивенте" // что покажется в истории кошелька
+    }, "*");
+
+    document.getElementById('msg').textContent = '✅ Начислено 3 KD Bucks!';
+    canClaim = false;
+    document.getElementById('claimBtn').disabled = true;
+    document.getElementById('claimBtn').textContent = 'Ждите следующую минуту...';
+  };
+<\/script>
+</body>
+</html>`
+        ),
+
+        e('h3',null,'⭐ ШАГ 2. Как это работает — по-простому'),
+        e('p',null,'Внутри HTML-кода (между тегом ',e('code',null,'<scr'+'ipt>'),' и ',e('code',null,'<\/scr'+'ipt>'),') можно писать обычный JavaScript. У вас ВСЕГДА должна быть эта одна команда, чтобы дать игроку деньги:'),
+        e('pre',null,
+`window.parent.postMessage({
+  type: "eventReward",   // не меняйте эту строку, она "говорит" сайту что это награда
+  amount: 5,              // ваше число — сколько KD Bucks дать (можно и отрицательное, чтобы забрать)
+  reason: "Текст причины" // покажется в истории кошелька игрока
+}, "*");`
+        ),
+        e('p',null,'Это всё. Можете вызывать эту команду где угодно: по кнопке, по таймеру, при победе в мини-игре, при правильном ответе на вопрос — что угодно решит ваш JavaScript-код.'),
+
+        e('h3',null,'⭐ ШАГ 3. Примеры готовых кусков кода (просто скопируйте нужный)'),
+        e('p',null,e('b',null,'Пример А — награда за клик по картинке:')),
+        e('pre',null,
+`<div onclick="giveReward()" style="font-size:4rem;cursor:pointer;">🎁</div>
+${"<"}script>
+function giveReward(){
+  window.parent.postMessage({type:"eventReward",amount:2,reason:"Нажал на подарок"},"*");
+}
+<\/script>`
+        ),
+        e('p',null,e('b',null,'Пример Б — счётчик секунд на странице (как долго играет):')),
+        e('pre',null,
+`<script>
+let seconds = 0;
+setInterval(() => {
+  seconds++;
+  if (seconds % 60 === 0) { // каждую минуту
+    window.parent.postMessage({type:"eventReward",amount:1,reason:"Минута игры"},"*");
+  }
+}, 1000);
+<\/script>`
+        ),
+        e('p',null,e('b',null,'Пример В — простая викторина с правильным ответом:')),
+        e('pre',null,
+`<p>Сколько будет 2+2?</p>
+<button onclick="checkAnswer(4)">4</button>
+<button onclick="checkAnswer(5)">5</button>
+${"<"}script>
+function checkAnswer(val){
+  if(val === 4){
+    window.parent.postMessage({type:"eventReward",amount:5,reason:"Верный ответ"},"*");
+    alert("Правильно! +5 KDB");
+  } else {
+    alert("Неправильно, попробуйте ещё");
+  }
+}
+<\/script>`
+        ),
+
+        e('h3',null,'⭐ ШАГ 4. Заполните название и описание'),
+        e('p',null,'В окне редактирования ивента (рядом с полем кода) есть два маленьких поля — «Название ивента» и «Описание». Они НЕ влияют на код, просто подпись на карточке. Заполняйте их обычным текстом, например: «Летний ивент» / «Собирай KD Bucks каждую минуту».'),
+
+        e('h3',null,'⭐ ШАГ 5. Как сохранить и проверить'),
+        e('p',null,'1) Вставьте код в большое текстовое поле.'),
+        e('p',null,'2) Нажмите «Сохранить».'),
+        e('p',null,'3) Закройте это окно и посмотрите на главную страницу — первая карточка с фиолетовой светящейся рамкой это ваш ивент.'),
+        e('p',null,'4) Нажмите на неё, нажмите «Играть» — откроется ваша страница. Проверьте что кнопки работают и деньги начисляются (посмотрите в 🪙 Кошелёк → История).'),
+
+        e('h3',null,'🚫 ШАГ 6. Как выдать конкретный смайлик конкретному игроку (НЕ через код ивента)'),
+        e('p',null,'Это отдельная функция сайта, никакого кода писать не нужно:'),
+        e('p',null,'1) Откройте ',e('code',null,'🛒 Магазин'),' (через левое меню).'),
+        e('p',null,'2) Перейдите на вкладку ',e('code',null,'💰 Продать'),'.'),
+        e('p',null,'3) В самом низу страницы (только у админов) есть раздел «👑 Выдать смайлик игроку» — список всех смайликов.'),
+        e('p',null,'4) Нажмите на нужный смайлик, введите ник или код (UID) игрока — смайлик появится у него в инвентаре с запасом 30 использований.'),
+
+        e('h3',null,'⚠️ Важно запомнить'),
+        e('p',null,'• Не отправляйте postMessage чаще одного раза в секунду — сайт это ограничивает ради защиты от накруток.'),
+        e('p',null,'• Если стереть весь код и сохранить пустое поле — ивент-карточка пропадёт с сайта у всех.'),
+        e('p',null,'• Игроки не могут скачать файл ивента себе на компьютер — это специально отключено.'),
+        e('p',null,'• Можно поставить отрицательное число в ',e('code',null,'amount'),' (например ',e('code',null,'-3'),') чтобы забрать KD Bucks за неправильный ответ или проигрыш.')
+      )
+    ),
+
+    // ===== EDIT COMMENT MODAL =====
+    editingComment&&e('div',{className:'modal-bg',onClick:()=>setEditingComment(null)},
+      e('div',{className:'modal',onClick:ev=>ev.stopPropagation(),style:{maxWidth:420}},
+        e('h2',null,'✏️ Изменить отзыв'),
+        e('div',{style:{marginBottom:8}},
+          e('div',{style:{fontSize:'.82rem',color:'var(--text2)',marginBottom:4}},'Оценка:'),
+          e('div',{className:'star-rating'},
+            [1,2,3,4,5].map(i=>e('span',{key:i,
+              onClick:()=>setEditingComment(prev=>({...prev,stars:i}))
+            },editingComment.stars>=i?'⭐':'☆'))
+          )
+        ),
+        e('input',{type:'text',placeholder:'Текст отзыва',value:editingComment.text,onChange:ev=>setEditingComment(prev=>({...prev,text:ev.target.value}))}),
+        e('div',{className:'modal-acts'},
+          e('button',{className:'btn-cancel',onClick:()=>setEditingComment(null)},T.cancel),
+          e('button',{className:'btn-save',onClick:saveEditComment},T.save)
+        )
+      )
+    ),
+
+    // ===== FULLSCREEN GAMES =====
+    openGames.length>0&&e('div',{className:'fs-overlay'+(fsExpanded?' fs-expanded':''),
+      style:fsExpanded?{position:'fixed',inset:0,zIndex:400}:{}
+    },
+      // Desktop: hover zone to show header
+      e('div',{className:'hover-zone',onMouseEnter:()=>{
+        setFsHeader(true);
+        if(fsHideTimer.current)clearTimeout(fsHideTimer.current);
+        fsHideTimer.current=setTimeout(()=>setFsHeader(false),2500);
+      }}),
+
+      // Header (tabs + close)
+      e('div',{className:'fs-hdr'+(fsHeader||showFsBar?'':' hidden')},
         e('div',{className:'tabs-bar'},
           openGames.map(g=>e('div',{key:g.id,className:'game-tab'+(activeGame===g.id?' act':''),onClick:()=>setActiveGame(g.id)},
-            g.title,e('button',{className:'tab-close',onClick:ev=>{ev.stopPropagation();closeTab(g.id);}},`✕`)
+            g.title,
+            e('button',{className:'tab-close',onClick:ev=>{ev.stopPropagation();closeTab(g.id);}},`✕`)
           )),
+          // Fullscreen toggle button
+          e('button',{className:'close-all',style:{background:'rgba(255,255,255,.08)'},
+            onClick:()=>{
+              setFsExpanded(p=>!p);
+              if(!fsExpanded)setFsHeader(false);
+            }
+          },fsExpanded?'↙ Свернуть':'↗ На весь экран'),
           e('button',{className:'close-all',onClick:()=>{setOpenGames([]);setActiveGame(null);}},T.closeAll)
         )
       ),
-      openGames.map(g=>e('iframe',{key:g.id,className:'fs-iframe',srcDoc:g.html,style:{display:activeGame===g.id?'block':'none'},sandbox:'allow-scripts allow-same-origin allow-forms allow-modals allow-popups',title:g.title}))
+
+      // Game iframes
+      openGames.map(g=>e('iframe',{
+        key:g.id,
+        className:'fs-iframe',
+        srcDoc:g.html,
+        style:{display:activeGame===g.id?'block':'none'},
+        sandbox:'allow-scripts allow-same-origin allow-forms allow-modals allow-popups',
+        title:g.title
+      })),
+
+      // Mobile pull-up bar (small chevron button)
+      e('button',{
+        className:'fs-expand-btn',
+        onClick:()=>setShowFsBar(p=>!p),
+        title:'Управление'
+      },showFsBar?'✕':'☰'),
+
+      // Mobile bottom bar
+      showFsBar&&e('div',{className:'fs-phone-bar'},
+        e('button',{className:'fs-phone-btn',onClick:()=>{setShowFsBar(false);setFsExpanded(p=>!p)}},
+          fsExpanded?'↙ Свернуть':'↗ Развернуть'
+        ),
+        e('div',{style:{color:'#fff',fontSize:'.85rem',fontWeight:600}},
+          openGames.find(g=>g.id===activeGame)?.title||''
+        ),
+        e('button',{className:'fs-phone-btn',style:{background:'#dc262688'},
+          onClick:()=>{setOpenGames([]);setActiveGame(null);setShowFsBar(false);}
+        },'✕ Закрыть')
+      )
     )
   );
 }
@@ -1952,4 +3837,4 @@ function App(){
 ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
 </script>
 </body>
-</
+</html>
